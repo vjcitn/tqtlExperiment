@@ -15,9 +15,6 @@ setMethod("show", "tQTLExperiment", function(object) {
     cat("geno:", nrow(object@geno), "samples x", ncol(object@geno),  # direct slot access
         "variants [BEDMatrix - lazy]\n")
     cat("plinkPrefix:", object@plinkPrefix, "\n")
-    py <- tryCatch(findTQTL(), error = function(e) NA_character_)
-    ver <- if (!is.na(py)) tryCatch(tensorqtlVersion(py),
-                                    error = function(e) "?") else "not found"
-    cat("tensorqtl:", ver, "\n")
+    cat("use prepareTQTL() to write inputs and get CLI command\n")
     invisible(object)
 })

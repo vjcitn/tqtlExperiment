@@ -31,8 +31,9 @@ NULL
 #' @slot plinkPrefix A length-one character string giving the PLINK file
 #'   prefix.
 #'
-#' @seealso [tQTLExperiment()] for the constructor, [runTQTL()] to invoke
-#'   tensorQTL, [findTQTL()] to locate the Python installation.
+#' @seealso [tQTLExperiment()] for the constructor,
+#'   [prepareTQTL()] to write input files and get the CLI command,
+#'   [readTQTL()] to load results, [findTQTL()] to locate Python.
 #'
 #' @exportClass tQTLExperiment
 setClass("tQTLExperiment",

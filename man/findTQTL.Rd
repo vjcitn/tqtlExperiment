@@ -7,16 +7,18 @@
 findTQTL()
 }
 \value{
-The path to the Python executable as a character string.
+Path to a Python executable as a character string.
 }
 \description{
-Searches for a Python executable that has the tensorQTL package installed.
-The search order is:
-\enumerate{
-\item \code{options(tQTLExperiment.python)} — explicit user preference
-\item \code{python3} on PATH
-\item \code{python} on PATH
+Searches for a Python executable that has tensorQTL installed, for use
+in constructing the command string returned by \code{\link[=prepareTQTL]{prepareTQTL()}}.  The
+search checks common conda/mamba locations before falling back to PATH.
 }
+\details{
+Because \code{\link[=prepareTQTL]{prepareTQTL()}} returns a shell command for the user to run
+separately, this function is only needed to populate the \code{python}
+argument of \code{\link[=prepareTQTL]{prepareTQTL()}}.  Set \code{options(tQTLExperiment.python)} to
+skip the search entirely.
 }
 \examples{
 tryCatch(findTQTL(), error = function(e) invisible(NULL))

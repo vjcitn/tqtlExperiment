@@ -2,20 +2,18 @@
 % Please edit documentation in R/findTQTL.R
 \name{tensorqtlVersion}
 \alias{tensorqtlVersion}
-\title{Report the installed tensorQTL version}
+\title{Report the tensorQTL version from a Python installation}
 \usage{
 tensorqtlVersion(python = findTQTL())
 }
 \arguments{
-\item{python}{Path to the Python executable. Defaults to the result of
-\code{\link[=findTQTL]{findTQTL()}}.}
+\item{python}{Path to the Python executable. Defaults to \code{\link[=findTQTL]{findTQTL()}}.}
 }
 \value{
-A character string with the tensorQTL version, or \code{NA} if not
-found.
+A character string with the version, or \code{NA}.
 }
 \description{
-Report the installed tensorQTL version
+Report the tensorQTL version from a Python installation
 }
 \examples{
 tryCatch(tensorqtlVersion(), error = function(e) NA_character_)

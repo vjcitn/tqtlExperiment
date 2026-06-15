@@ -37,6 +37,7 @@ prefix.}
 }}
 
 \seealso{
-\code{\link[=tQTLExperiment]{tQTLExperiment()}} for the constructor, \code{\link[=runTQTL]{runTQTL()}} to invoke
-tensorQTL, \code{\link[=findTQTL]{findTQTL()}} to locate the Python installation.
+\code{\link[=tQTLExperiment]{tQTLExperiment()}} for the constructor,
+\code{\link[=prepareTQTL]{prepareTQTL()}} to write input files and get the CLI command,
+\code{\link[=readTQTL]{readTQTL()}} to load results, \code{\link[=findTQTL]{findTQTL()}} to locate Python.
 }

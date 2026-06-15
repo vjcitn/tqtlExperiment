@@ -1,35 +1,30 @@
-#' Run the tensorQTL eQTL mapping CLI
+#' Prepare input files and return the tensorQTL CLI command
 #'
-#' Writes temporary input files from a [tQTLExperiment], invokes
-#' `python -m tensorqtl`, reads the results, and returns them as a named
-#' list of [GenomicRanges::GRanges] objects.
+#' Writes the phenotype BED file and (optionally) the covariate file to a
+#' user-specified directory, then returns the complete `python -m tensorqtl`
+#' command string.  The user runs this command in a terminal where their
+#' Python/conda environment is properly configured, then calls [readTQTL()]
+#' to load the results back into R.
 #'
 #' @param x A [tQTLExperiment].
-#' @param python Path to the Python executable with tensorqtl installed.
-#'   Defaults to [findTQTL()].
-#' @param mode One of `"cis"`, `"cis_nominal"`, `"cis_independent"`,
-#'   `"trans"`. Passed to `--mode`. Defaults to `"cis_nominal"`.
-#' @param assayName Name of the assay to use as phenotype. Defaults to
-#'   first assay.
-#' @param mafThreshold MAF threshold for variant filtering. Passed to
-#'   `--maf_threshold`. Defaults to `0.05`.
-#' @param window Cis-window size in base pairs. Defaults to `1000000`.
-#' @param permutations Number of permutations for `"cis"` mode. Ignored for
-#'   `"cis_nominal"`.
-#' @param debug Logical; if `TRUE`, the temporary directory is kept after
-#'   the run and its path is printed along with the first lines of each
-#'   input file.
-#' @param ... Additional arguments passed to the tensorQTL CLI as
-#'   `--key value` pairs.
+#' @param outDir Path to an existing directory that will hold both the
+#'   intermediate input files and the tensorQTL output.  **Must be specified
+#'   by the caller** - no default is provided.
+#' @param mode One of `"cis_nominal"`, `"cis"`, `"cis_independent"`,
+#'   `"trans"`. Passed to `--mode`.
+#' @param assayName Name of the assay to use as the phenotype matrix.
+#'   Defaults to the first assay.
+#' @param mafThreshold MAF threshold. Defaults to `0.05`.
+#' @param window Cis-window in base pairs. Defaults to `1000000`.
+#' @param permutations Permutations for `"cis"` mode. Defaults to `1000`.
+#' @param python Path to the Python executable to embed in the returned
+#'   command string. Defaults to `"python3"`.
+#' @param ... Additional `--key value` flags passed to tensorQTL verbatim.
 #'
-#' @return A named list of [GenomicRanges::GRanges]:
-#'   \describe{
-#'     \item{`pairs`}{For `cis_nominal`: all tested feature–variant pairs.}
-#'     \item{`hits`}{For `cis`: one range per feature with permutation
-#'       p-value.}
-#'   }
-#'   The exact contents depend on mode; raw output files are preserved when
-#'   `debug = TRUE`.
+#' @return A character string containing the complete shell command to run.
+#'   The string is also printed via [message()] for easy copy-paste.
+#'
+#' @seealso [readTQTL()] to load results after the command has been run.
 #'
 #' @examples
 #' exdir <- system.file("extdata", package = "tQTLExperiment")
@@ -37,119 +32,167 @@
 #'     plinkPrefix = file.path(exdir, "chr22-n100"),
 #'     phenoFile   = file.path(exdir, "mean-pheno-n100.bed")
 #' )
-#' tryCatch({
-#'     res <- runTQTL(tqe, mode = "cis_nominal")
-#'     res$pairs
-#' }, error = function(e) invisible(NULL))
+#' cmd <- prepareTQTL(tqe, outDir = tempdir(), mode = "cis_nominal")
+#' cat(cmd, "\n")
 #'
 #' @export
-setGeneric("runTQTL",
-    function(x, python = NULL,
-             mode = c("cis_nominal", "cis", "cis_independent", "trans"),
-             assayName = NULL, mafThreshold = 0.05, window = 1000000L,
-             permutations = 1000L, debug = FALSE, ...)
-        standardGeneric("runTQTL")
-)
+prepareTQTL <- function(x, outDir,
+                        mode      = c("cis_nominal", "cis",
+                                      "cis_independent", "trans"),
+                        assayName    = NULL,
+                        mafThreshold = 0.05,
+                        window       = 1000000L,
+                        permutations = 1000L,
+                        python       = "python3",
+                        ...) {
+    mode <- match.arg(mode)
 
-#' @rdname runTQTL
-setMethod("runTQTL", "tQTLExperiment",
-    function(x, python = NULL,
-             mode = c("cis_nominal", "cis", "cis_independent", "trans"),
-             assayName = NULL, mafThreshold = 0.05, window = 1000000L,
-             permutations = 1000L, debug = FALSE, ...) {
+    if (missing(outDir) || !nzchar(outDir))
+        stop("'outDir' must be specified - it will hold input and output files")
+    if (!dir.exists(outDir))
+        stop("'outDir' does not exist: ", outDir)
 
-        mode <- match.arg(mode)
-        if (is.null(python)) python <- findTQTL()
-        if (is.null(assayName))
-            assayName <- SummarizedExperiment::assayNames(x)[1]
+    if (is.null(assayName))
+        assayName <- SummarizedExperiment::assayNames(x)[1]
 
-        tmpdir <- tempfile("tqtl_")
-        dir.create(tmpdir)
-        if (debug) {
-            message("debug=TRUE: intermediate files kept in ", tmpdir)
-        } else {
-            on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
-        }
+    pheno_file <- file.path(outDir, "pheno.bed")
+    prefix     <- file.path(outDir, "tqtl_out")
 
-        pheno_file <- file.path(tmpdir, "pheno.bed")
-        prefix     <- file.path(tmpdir, "tqtl_out")
+    .tqtl_write_pheno_bed(x, assayName, pheno_file)
 
-        .tqtl_write_pheno_bed(x, assayName, pheno_file)
-
-        if (debug) {
-            message("--- pheno.bed (first 2 lines) ---")
-            message(paste(readLines(pheno_file, n = 2L), collapse = "\n"))
-        }
-
-        args <- c("-m", "tensorqtl",
-                  x@plinkPrefix,
-                  pheno_file,
-                  prefix,
-                  "--mode", mode,
-                  "--maf_threshold", mafThreshold,
-                  "--window", window,
-                  "-o", tmpdir)
-
-        # add covariates if any (excluding fam_index)
-        cov_cols <- setdiff(colnames(SummarizedExperiment::colData(x)),
-                            "fam_index")
-        if (length(cov_cols) > 0L) {
-            cov_file <- file.path(tmpdir, "covariates.tsv")
-            .tqtl_write_covariates(x, cov_cols, cov_file)
-            args <- c(args, "--covariates", cov_file)
-            if (debug) {
-                message("--- covariates.tsv (first 2 lines) ---")
-                message(paste(readLines(cov_file, n = 2L), collapse = "\n"))
-            }
-        }
-
-        if (mode == "cis")
-            args <- c(args, "--permutations", permutations)
-
-        extra <- list(...)
-        for (nm in names(extra)) {
-            val <- extra[[nm]]
-            if (isTRUE(val))
-                args <- c(args, paste0("--", nm))
-            else
-                args <- c(args, paste0("--", nm), as.character(val))
-        }
-
-        # Unset R_HOME and friends so rpy2 (if present in the Python env)
-        # does not try to initialise a nested R session and segfault.
-        # Also clear KMP/OMP thread-limit vars so torch sees all cores.
-        vars_to_clear <- c(
-            "R_HOME", "R_LIBS", "R_LIBS_USER", "R_LIBS_SITE",
-            "R_PROFILE", "R_ENVIRON", "R_ENVIRON_USER",
-            "OMP_THREAD_LIMIT", "KMP_DEVICE_THREAD_LIMIT",
-            "KMP_TEAMS_THREAD_LIMIT", "KMP_ALL_THREADS"
-        )
-        saved_env <- Sys.getenv(vars_to_clear, names = TRUE,
-                                unset = NA_character_)
-        vars_to_unset <- names(saved_env)[!is.na(saved_env)]
-        if (length(vars_to_unset)) {
-            Sys.unsetenv(vars_to_unset)
-            on.exit(
-                do.call(Sys.setenv, as.list(saved_env[vars_to_unset])),
-                add = TRUE
-            )
-        }
-
-        status <- system2(python, args = args)
-        if (status != 0L)
-            stop("tensorqtl exited with status ", status)
-
-        .tqtl_read_results(tmpdir, basename(prefix), mode, x)
+    cov_cols <- setdiff(colnames(SummarizedExperiment::colData(x)), "fam_index")
+    cov_arg  <- character(0)
+    if (length(cov_cols) > 0L) {
+        cov_file <- file.path(outDir, "covariates.tsv")
+        .tqtl_write_covariates(x, cov_cols, cov_file)
+        cov_arg <- c("--covariates", shQuote(cov_file))
     }
-)
 
-# ---- internal helpers ---------------------------------------------------
+    extra <- list(...)
+    extra_args <- character(0)
+    for (nm in names(extra)) {
+        val <- extra[[nm]]
+        if (isTRUE(val))
+            extra_args <- c(extra_args, paste0("--", nm))
+        else
+            extra_args <- c(extra_args, paste0("--", nm), as.character(val))
+    }
+
+    perm_arg <- if (mode == "cis")
+        c("--permutations", permutations) else character(0)
+
+    parts <- c(
+        python, "-m", "tensorqtl",
+        shQuote(x@plinkPrefix),
+        shQuote(pheno_file),
+        shQuote(prefix),
+        "--mode",          mode,
+        "--maf_threshold", mafThreshold,
+        "--window",        window,
+        "-o",              shQuote(outDir),
+        cov_arg,
+        perm_arg,
+        extra_args
+    )
+
+    cmd <- paste(parts, collapse = " ")
+    message("Run the following command in a terminal with tensorqtl available:\n\n",
+            cmd, "\n\nThen call readTQTL('", outDir, "', mode = '", mode,
+            "') to load results into R.")
+    invisible(cmd)
+}
+
+#' Read tensorQTL results into R
+#'
+#' Reads the output files written by a tensorQTL run into
+#' [GenomicRanges::GRanges] objects, matched to the features in the
+#' originating [tQTLExperiment].
+#'
+#' @param outDir The same directory passed to [prepareTQTL()].
+#' @param mode The mode used for the tensorQTL run.
+#' @param x The [tQTLExperiment] used to generate the input files, used to
+#'   attach feature coordinates to region-level results.
+#'
+#' @return A named list of [GenomicRanges::GRanges]:
+#'   \describe{
+#'     \item{`pairs`}{(`cis_nominal`) Feature-variant pairs with association
+#'       statistics.}
+#'     \item{`hits`}{(`cis`) One range per feature with permutation p-value.}
+#'     \item{`output_files`}{(other modes) Paths to the raw output files.}
+#'   }
+#'
+#' @seealso [prepareTQTL()] to write input files and obtain the CLI command.
+#'
+#' @examples
+#' exdir <- system.file("extdata", package = "tQTLExperiment")
+#' tqe <- tQTLExperiment(
+#'     plinkPrefix = file.path(exdir, "chr22-n100"),
+#'     phenoFile   = file.path(exdir, "mean-pheno-n100.bed")
+#' )
+#' od <- tempdir()
+#' cmd <- prepareTQTL(tqe, outDir = od, mode = "cis_nominal")
+#' # (user runs cmd in terminal)
+#' # res <- readTQTL(od, mode = "cis_nominal", x = tqe)
+#'
+#' @export
+readTQTL <- function(outDir,
+                     mode = c("cis_nominal", "cis",
+                              "cis_independent", "trans"),
+                     x    = NULL) {
+    mode <- match.arg(mode)
+    if (!dir.exists(outDir))
+        stop("'outDir' not found: ", outDir)
+
+    outfiles <- list.files(outDir, pattern = "tqtl_out",
+                           full.names = TRUE)
+    if (length(outfiles) == 0L)
+        stop("No tensorQTL output files found in '", outDir,
+             "'. Has the CLI command been run yet?")
+
+    if (mode == "cis_nominal") {
+        parquet_files <- outfiles[grepl("\\.parquet$", outfiles)]
+        if (length(parquet_files) == 0L)
+            stop("No .parquet files found. Has the CLI command been run yet?")
+        if (!requireNamespace("arrow", quietly = TRUE))
+            stop("Package 'arrow' needed to read parquet output: ",
+                 "install.packages('arrow')")
+        df <- do.call(rbind, lapply(parquet_files, arrow::read_parquet))
+        gr <- GRanges(
+            seqnames = df[["variant_id"]],
+            ranges   = IRanges::IRanges(start = df[["pos"]], width = 1L)
+        )
+        S4Vectors::mcols(gr) <- S4Vectors::DataFrame(df)
+        return(list(pairs = gr))
+    }
+
+    if (mode == "cis") {
+        hit_files <- outfiles[grepl("cis_qtl\\.txt", outfiles)]
+        if (length(hit_files) == 0L)
+            stop("No cis_qtl output found. Has the CLI command been run yet?")
+        df <- read.table(hit_files[1L], header = TRUE, sep = "\t",
+                         stringsAsFactors = FALSE)
+        if (!is.null(x)) {
+            feat_gr <- SummarizedExperiment::rowRanges(x)
+            idx     <- match(df[["phenotype_id"]], names(feat_gr))
+            gr      <- feat_gr[idx[!is.na(idx)]]
+            S4Vectors::mcols(gr) <- S4Vectors::DataFrame(
+                df[!is.na(idx), , drop = FALSE])
+        } else {
+            gr <- GRanges()
+            S4Vectors::mcols(gr) <- S4Vectors::DataFrame(df)
+        }
+        return(list(hits = gr))
+    }
+
+    list(output_files = outfiles)
+}
+
+# ---- internal file writers ----------------------------------------------
 
 .tqtl_write_pheno_bed <- function(x, assayName, path) {
     rr  <- SummarizedExperiment::rowRanges(x)
     mat <- SummarizedExperiment::assay(x, assayName)
 
-    # tensorQTL expects seqnames without 'chr' prefix as integers
     chr_raw <- sub("^chr", "", as.character(GenomicRanges::seqnames(rr)))
     chr_raw[chr_raw == "X"]            <- "23"
     chr_raw[chr_raw == "Y"]            <- "24"
@@ -183,47 +226,8 @@ setMethod("runTQTL", "tQTLExperiment",
         stop("Non-numeric covariate columns: ",
              paste(non_num, collapse = ", "),
              ". Use tQTLExperimentFromRSE() with a covariateMatrix.")
-    # tensorQTL format: covariates x samples (transpose of colData)
-    out <- cbind(data.frame(ID = rownames(t(cd)), stringsAsFactors = FALSE),
+    # tensorQTL format: covariates x samples
+    out <- cbind(data.frame(ID = colnames(cd), stringsAsFactors = FALSE),
                  as.data.frame(t(cd)))
     write.table(out, path, sep = "\t", quote = FALSE, row.names = FALSE)
-}
-
-.tqtl_read_results <- function(tmpdir, prefix, mode, x) {
-    outfiles <- list.files(tmpdir, pattern = prefix, full.names = TRUE)
-
-    if (mode == "cis_nominal") {
-        parquet_files <- outfiles[grepl("\\.parquet$", outfiles)]
-        if (length(parquet_files) == 0L)
-            stop("No parquet output files found in ", tmpdir,
-                 ". Is the 'arrow' package installed?")
-        if (!requireNamespace("arrow", quietly = TRUE))
-            stop("Package 'arrow' is required to read tensorQTL parquet output. ",
-                 "Install with: install.packages('arrow')")
-        dfs <- lapply(parquet_files, arrow::read_parquet)
-        df  <- do.call(rbind, dfs)
-        gr  <- GRanges(
-            seqnames = df[["variant_id"]],   # placeholder; parse if needed
-            ranges   = IRanges::IRanges(start = df[["pos"]], width = 1L)
-        )
-        S4Vectors::mcols(gr) <- S4Vectors::DataFrame(df)
-        return(list(pairs = gr))
-    }
-
-    if (mode == "cis") {
-        hit_files <- outfiles[grepl("cis_qtl\\.txt", outfiles)]
-        if (length(hit_files) == 0L)
-            stop("No cis_qtl output file found in ", tmpdir)
-        df  <- read.table(hit_files[1L], header = TRUE, sep = "\t",
-                          stringsAsFactors = FALSE)
-        feat_gr <- SummarizedExperiment::rowRanges(x)
-        idx     <- match(df[["phenotype_id"]], names(feat_gr))
-        gr      <- feat_gr[idx[!is.na(idx)]]
-        S4Vectors::mcols(gr) <- S4Vectors::DataFrame(df[!is.na(idx), ,
-                                                        drop = FALSE])
-        return(list(hits = gr))
-    }
-
-    # other modes: return raw file paths for user inspection
-    list(output_files = outfiles)
 }
