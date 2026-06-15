@@ -49,6 +49,7 @@ prepareTQTL <- function(x, outDir,
 
     if (missing(outDir) || !nzchar(outDir))
         stop("'outDir' must be specified - it will hold input and output files")
+    outDir <- path.expand(outDir)
     if (!dir.exists(outDir))
         stop("'outDir' does not exist: ", outDir)
 
@@ -83,13 +84,13 @@ prepareTQTL <- function(x, outDir,
 
     parts <- c(
         python, "-m", "tensorqtl",
-        shQuote(x@plinkPrefix),
-        shQuote(pheno_file),
-        shQuote(prefix),
+        x@plinkPrefix,
+        pheno_file,
+        prefix,
         "--mode",          mode,
         "--maf_threshold", mafThreshold,
         "--window",        window,
-        "-o",              shQuote(outDir),
+        "-o",              outDir,
         cov_arg,
         perm_arg,
         extra_args
@@ -140,6 +141,7 @@ readTQTL <- function(outDir,
                               "cis_independent", "trans"),
                      x    = NULL) {
     mode <- match.arg(mode)
+    outDir <- path.expand(outDir)
     if (!dir.exists(outDir))
         stop("'outDir' not found: ", outDir)
 
@@ -150,19 +152,34 @@ readTQTL <- function(outDir,
              "'. Has the CLI command been run yet?")
 
     if (mode == "cis_nominal") {
-        parquet_files <- outfiles[grepl("\\.parquet$", outfiles)]
+        parquet_files <- outfiles[grepl("parquet", outfiles)]
         if (length(parquet_files) == 0L)
             stop("No .parquet files found. Has the CLI command been run yet?")
         if (!requireNamespace("arrow", quietly = TRUE))
             stop("Package 'arrow' needed to read parquet output: ",
                  "install.packages('arrow')")
         df <- do.call(rbind, lapply(parquet_files, arrow::read_parquet))
-        gr <- GRanges(
-            seqnames = df[["variant_id"]],
-            ranges   = IRanges::IRanges(start = df[["pos"]], width = 1L)
-        )
-        S4Vectors::mcols(gr) <- S4Vectors::DataFrame(df)
-        return(list(pairs = gr))
+
+        # variant_id is "chrom:pos:ref:alt" — parse for GRanges coordinates
+        vid_parts <- strsplit(df[["variant_id"]], ":", fixed = TRUE)
+        n_parts   <- lengths(vid_parts)
+        if (all(n_parts >= 2L)) {
+            chrom <- vapply(vid_parts, `[[`, character(1), 1L)
+            pos   <- suppressWarnings(
+                       as.integer(vapply(vid_parts, `[[`, character(1), 2L)))
+            if (!anyNA(pos)) {
+                gr <- GRanges(
+                    seqnames = chrom,
+                    ranges   = IRanges::IRanges(start = pos, width = 1L)
+                )
+                S4Vectors::mcols(gr) <- S4Vectors::DataFrame(df)
+                return(list(pairs = gr))
+            }
+        }
+        # fallback: return as DataFrame if variant_id is not parseable
+        message("variant_id not in chrom:pos:ref:alt format; ",
+                "returning DataFrame instead of GRanges")
+        return(list(pairs = S4Vectors::DataFrame(df)))
     }
 
     if (mode == "cis") {
