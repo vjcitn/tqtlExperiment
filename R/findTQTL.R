@@ -34,6 +34,15 @@ findTQTL <- function() {
 }
 
 .check_tensorqtl <- function(python, error = TRUE) {
+    # Unset R_HOME so rpy2 (if present) doesn't try to nest an R session
+    r_vars <- c("R_HOME", "R_LIBS", "R_LIBS_USER", "R_LIBS_SITE",
+                "R_PROFILE", "R_ENVIRON", "R_ENVIRON_USER")
+    saved  <- Sys.getenv(r_vars, names = TRUE, unset = NA_character_)
+    to_unset <- names(saved)[!is.na(saved)]
+    if (length(to_unset)) on.exit(
+        do.call(Sys.setenv, as.list(saved[to_unset])), add = TRUE)
+    if (length(to_unset)) Sys.unsetenv(to_unset)
+
     res <- system2(python, args = c("-c", "import tensorqtl"),
                    stdout = FALSE, stderr = FALSE)
     if (res != 0L) {

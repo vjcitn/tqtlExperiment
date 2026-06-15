@@ -115,10 +115,16 @@ setMethod("runTQTL", "tQTLExperiment",
                 args <- c(args, paste0("--", nm), as.character(val))
         }
 
-        # clear KMP/OMP thread-limit vars so tensorQTL's torch sees all cores
-        omp_limit_vars <- c("OMP_THREAD_LIMIT", "KMP_DEVICE_THREAD_LIMIT",
-                            "KMP_TEAMS_THREAD_LIMIT", "KMP_ALL_THREADS")
-        saved_env <- Sys.getenv(omp_limit_vars, names = TRUE,
+        # Unset R_HOME and friends so rpy2 (if present in the Python env)
+        # does not try to initialise a nested R session and segfault.
+        # Also clear KMP/OMP thread-limit vars so torch sees all cores.
+        vars_to_clear <- c(
+            "R_HOME", "R_LIBS", "R_LIBS_USER", "R_LIBS_SITE",
+            "R_PROFILE", "R_ENVIRON", "R_ENVIRON_USER",
+            "OMP_THREAD_LIMIT", "KMP_DEVICE_THREAD_LIMIT",
+            "KMP_TEAMS_THREAD_LIMIT", "KMP_ALL_THREADS"
+        )
+        saved_env <- Sys.getenv(vars_to_clear, names = TRUE,
                                 unset = NA_character_)
         vars_to_unset <- names(saved_env)[!is.na(saved_env)]
         if (length(vars_to_unset)) {
