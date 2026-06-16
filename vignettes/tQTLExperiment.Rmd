@@ -36,7 +36,8 @@ segfaults, duplicate OpenMP runtimes).
 
 Genotype data are represented **lazily** via
 [BEDMatrix](https://CRAN.R-project.org/package=BEDMatrix) — the PLINK `.bed`
-file is never loaded into R memory.
+file is never loaded into R memory.  This makes it practical to work with
+whole-genome genotype files containing millions of variants.
 
 ## Installation
 
@@ -85,13 +86,14 @@ plpre <- tools::file_path_sans_ext(plink_paths[["bed"]])
 ## Covariate matrix
 
 tensorQTL requires numeric covariates.  We build a model matrix from `colData`
-using `model.matrix()`, renaming the intercept column to `int` to match
-quasar/tensorQTL convention.
+using `model.matrix()`, then drop the intercept column — tensorQTL does not
+expect one.  Dropping the first column after construction (rather than using
+`~ 0 + ...`) preserves reference-level dummy coding for factor variables.
 
 ```{r covmat, eval=FALSE}
 cd <- as.data.frame(colData(mageSEfilt))
 mm <- model.matrix(~ batch + population + sex, data = cd)
-colnames(mm)[colnames(mm) == "(Intercept)"] <- "int"
+mm <- mm[, -1, drop = FALSE]   # remove (Intercept)
 ```
 
 ## Constructor
