@@ -160,25 +160,46 @@ readTQTL <- function(outDir,
                  "install.packages('arrow')")
         df <- do.call(rbind, lapply(parquet_files, arrow::read_parquet))
 
-        # variant_id is "chrom:pos:ref:alt" — parse for GRanges coordinates
-        vid_parts <- strsplit(df[["variant_id"]], ":", fixed = TRUE)
-        n_parts   <- lengths(vid_parts)
-        if (all(n_parts >= 2L)) {
-            chrom <- vapply(vid_parts, `[[`, character(1), 1L)
-            pos   <- suppressWarnings(
-                       as.integer(vapply(vid_parts, `[[`, character(1), 2L)))
-            if (!anyNA(pos)) {
-                gr <- GRanges(
-                    seqnames = chrom,
-                    ranges   = IRanges::IRanges(start = pos, width = 1L)
-                )
-                S4Vectors::mcols(gr) <- S4Vectors::DataFrame(df)
-                return(list(pairs = gr))
+        # Parse GRanges coordinates from variant_id.
+        # Handles common formats:
+        #   "17:114101:G:A"   (chrom:pos:ref:alt, 4 colon-separated fields)
+        #   "22:16849573A-G"  (chrom:posRef-Alt,  2 fields, pos is numeric prefix)
+        #   "17_114101_G_A"   (underscore-separated)
+        vid   <- df[["variant_id"]]
+        chrom <- pos <- NULL
+
+        # try colon-separated
+        parts <- strsplit(vid, ":", fixed = TRUE)
+        if (all(lengths(parts) >= 2L)) {
+            chrom <- vapply(parts, `[[`, character(1), 1L)
+            pos2  <- vapply(parts, `[[`, character(1), 2L)
+            pos   <- suppressWarnings(as.integer(pos2))
+            if (anyNA(pos))   # pos2 may be "16849573A-G" — take numeric prefix
+                pos <- suppressWarnings(
+                    as.integer(sub("^([0-9]+).*", "\\1", pos2)))
+        }
+
+        # try underscore-separated if colon parse failed
+        if (is.null(pos) || anyNA(pos)) {
+            parts2 <- strsplit(vid, "_", fixed = TRUE)
+            if (all(lengths(parts2) >= 2L)) {
+                chrom <- vapply(parts2, `[[`, character(1), 1L)
+                pos   <- suppressWarnings(
+                    as.integer(vapply(parts2, `[[`, character(1), 2L)))
             }
         }
-        # fallback: return as DataFrame if variant_id is not parseable
-        message("variant_id not in chrom:pos:ref:alt format; ",
-                "returning DataFrame instead of GRanges")
+
+        if (!is.null(pos) && !anyNA(pos)) {
+            gr <- GRanges(
+                seqnames = chrom,
+                ranges   = IRanges::IRanges(start = pos, width = 1L)
+            )
+            S4Vectors::mcols(gr) <- S4Vectors::DataFrame(df)
+            return(list(pairs = gr))
+        }
+
+        message("Could not parse chrom/pos from variant_id (e.g. '",
+                vid[1], "'); returning DataFrame")
         return(list(pairs = S4Vectors::DataFrame(df)))
     }
 
