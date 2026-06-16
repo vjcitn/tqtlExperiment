@@ -195,6 +195,21 @@ readTQTL <- function(outDir,
                 ranges   = IRanges::IRanges(start = pos, width = 1L)
             )
             S4Vectors::mcols(gr) <- S4Vectors::DataFrame(df)
+
+            if (!is.null(x)) {
+                rr <- SummarizedExperiment::rowRanges(x)
+                # propagate genome build
+                g <- unique(GenomeInfoDb::genome(rr))
+                if (length(g) == 1L && !is.na(g))
+                    GenomeInfoDb::genome(gr) <- g
+                # propagate gene_name if present
+                if ("gene_name" %in% names(S4Vectors::mcols(rr))) {
+                    idx <- match(S4Vectors::mcols(gr)[["phenotype_id"]],
+                                 names(rr))
+                    S4Vectors::mcols(gr)[["gene_name"]] <-
+                        S4Vectors::mcols(rr)[["gene_name"]][idx]
+                }
+            }
             return(list(pairs = gr))
         }
 
