@@ -1,0 +1,24 @@
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/articles/index.html</loc></url>
+<url><loc>/articles/tQTLExperiment.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/reference/addGeneSymbols.html</loc></url>
+<url><loc>/reference/cache_mage_chr17_plink.html</loc></url>
+<url><loc>/reference/dot-validate_bed_magic.html</loc></url>
+<url><loc>/reference/findTQTL.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/prepareTQTL.html</loc></url>
+<url><loc>/reference/readTQTL.html</loc></url>
+<url><loc>/reference/show-tQTLExperiment-method.html</loc></url>
+<url><loc>/reference/sub-tQTLExperiment-ANY-ANY-ANY-method.html</loc></url>
+<url><loc>/reference/tQTLExperiment-class.html</loc></url>
+<url><loc>/reference/tQTLExperiment.html</loc></url>
+<url><loc>/reference/tQTLExperimentFromRSE.html</loc></url>
+<url><loc>/reference/tensorqtlVersion.html</loc></url>
+<url><loc>/reference/tqtlGeno.html</loc></url>
+<url><loc>/reference/tqtlPlinkPrefix.html</loc></url>
+<url><loc>/reference/tqtlVariantRanges.html</loc></url>
+</urlset>
+
