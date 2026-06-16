@@ -1,0 +1,232 @@
+---
+title: "eQTL mapping with tQTLExperiment and tensorQTL"
+author: "Vincent Carey"
+date: "`r Sys.Date()`"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_float: true
+vignette: >
+  %\VignetteIndexEntry{eQTL mapping with tQTLExperiment and tensorQTL}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+# Overview
+
+`tQTLExperiment` wraps the
+[tensorQTL](https://github.com/broadinstitute/tensorqtl) GPU-accelerated eQTL
+mapping tool in a
+[SummarizedExperiment](https://bioconductor.org/packages/SummarizedExperiment)-style
+container.  The key design principle is a **two-step workflow** that keeps R and
+Python in separate environments:
+
+1. `prepareTQTL()` — writes phenotype and covariate files to a directory and
+   returns the complete `python -m tensorqtl` command string.
+2. The user runs that command in a terminal with tensorQTL installed.
+3. `readTQTL()` — reads the output files back into R as
+   [GRanges](https://bioconductor.org/packages/GenomicRanges).
+
+This avoids all R/Python environment conflicts (conda PATH issues, `rpy2`
+segfaults, duplicate OpenMP runtimes).
+
+Genotype data are represented **lazily** via
+[BEDMatrix](https://CRAN.R-project.org/package=BEDMatrix) — the PLINK `.bed`
+file is never loaded into R memory.
+
+## Installation
+
+```{r install, eval=FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("vjcitn/tQTLExperiment")
+```
+
+tensorQTL must be installed in a Python environment:
+
+```bash
+pip install tensorqtl
+```
+
+# MAGE example data
+
+This vignette uses data from the
+[MAGE](https://www.science.org/doi/10.1126/science.adi6529) study
+(Multi-Ancestry Genomics, Epigenomics, and Transcriptomics), a multi-ancestry
+eQTL resource.  The `CSHLvc2026` companion package provides cached access to
+chromosome 17 genotypes and a pre-filtered pseudobulk B-cell SummarizedExperiment.
+
+```{r loaddata, eval=FALSE}
+library(tQTLExperiment)
+library(CSHLvc2026)
+
+data(mageSEfilt, package = "CSHLvc2026")
+mageSEfilt
+```
+
+```{r echo=FALSE}
+library(tQTLExperiment)
+```
+
+The genotype data live in PLINK format on OSN cloud storage and are downloaded
+once via `BiocFileCache`:
+
+```{r getgeno, eval=FALSE}
+plink_paths <- CSHLvc2026::cache_mage_chr17_plink()
+plpre <- tools::file_path_sans_ext(plink_paths[["bed"]])
+```
+
+# Building a tQTLExperiment
+
+## Covariate matrix
+
+tensorQTL requires numeric covariates.  We build a model matrix from `colData`
+using `model.matrix()`, renaming the intercept column to `int` to match
+quasar/tensorQTL convention.
+
+```{r covmat, eval=FALSE}
+cd <- as.data.frame(colData(mageSEfilt))
+mm <- model.matrix(~ batch + population + sex, data = cd)
+colnames(mm)[colnames(mm) == "(Intercept)"] <- "int"
+```
+
+## Constructor
+
+`tQTLExperimentFromRSE()` takes an existing
+`RangedSummarizedExperiment` and PLINK prefix, attaches the lazy genotype
+matrix, and optionally records the genome build in `seqinfo`.
+
+```{r construct, eval=FALSE}
+tqe <- tQTLExperimentFromRSE(
+    se              = mageSEfilt,
+    plinkPrefix     = plpre,
+    covariateMatrix = mm,
+    genome          = "hg38"
+)
+tqe
+```
+
+## Adding gene symbols
+
+`addGeneSymbols()` looks up HGNC names via `EnsDb.Hsapiens.v79` and adds a
+`gene_name` column to `mcols(rowRanges(tqe))`.  Ensembl version suffixes
+(e.g. `.3`) are stripped automatically.
+
+```{r syms, eval=FALSE}
+tqe <- addGeneSymbols(tqe)
+head(mcols(rowRanges(tqe))[, c("phenotype_id", "gene_name")])
+```
+
+# Running tensorQTL
+
+## Subset to chr17 features
+
+The PLINK file covers chromosome 17 only, so we filter the SE to matching
+features before writing the phenotype file.
+
+```{r subset, eval=FALSE}
+is_17 <- as.character(seqnames(rowRanges(tqe))) == "chr17"
+tqe17 <- tqe[which(is_17), ]
+dim(tqe17)
+```
+
+## prepareTQTL
+
+`prepareTQTL()` writes `pheno.bed` and `covariates.tsv` to `outDir` and
+returns the shell command.  The built-in `--maf_threshold` flag is one of
+tensorQTL's key advantages — no pre-filtering step is required.
+
+```{r prepare, eval=FALSE}
+outdir <- "~/mage_tqtl_run"
+dir.create(outdir, showWarnings = FALSE)
+
+cmd <- prepareTQTL(
+    tqe17,
+    outDir       = outdir,
+    mode         = "cis_nominal",
+    mafThreshold = 0.05
+)
+cat(cmd, "\n")
+```
+
+The printed command looks like:
+
+```
+python3 -m tensorqtl /path/to/CCDG_mage_chr17 ~/mage_tqtl_run/pheno.bed \
+    ~/mage_tqtl_run/tqtl_out --mode cis_nominal --maf_threshold 0.05 \
+    --window 1000000 -o ~/mage_tqtl_run \
+    --covariates ~/mage_tqtl_run/covariates.tsv
+```
+
+Paste this into a terminal where your tensorQTL conda environment is active:
+
+```bash
+conda activate plink-env
+KMP_DUPLICATE_LIB_OK=TRUE <paste command>
+```
+
+## readTQTL
+
+Once tensorQTL finishes, load results back into R.  Passing `x = tqe17`
+propagates the genome build and gene symbols automatically.
+
+```{r read, eval=FALSE}
+res <- readTQTL(outdir, mode = "cis_nominal", x = tqe17)
+res$pairs
+```
+
+# Exploring results
+
+```{r explore, eval=FALSE}
+pairs <- res$pairs
+
+# top associations by nominal p-value
+pairs[order(pairs$pval_nominal)][1:10,
+      c("gene_name", "variant_id", "af", "slope", "pval_nominal")]
+
+# associations for a specific gene
+tp53bp1 <- pairs[pairs$gene_name == "TP53BP1" & !is.na(pairs$gene_name)]
+tp53bp1[order(tp53bp1$pval_nominal)][1:5]
+
+# distribution of nominal p-values
+hist(pairs$pval_nominal, breaks = 50,
+     main = "tensorQTL nominal p-values (chr17, cis)",
+     xlab = "p-value")
+```
+
+# Example data (chr22)
+
+The package ships with a small example dataset (20 genes, 100 samples,
+chromosome 22) that can be used without external data or a tensorQTL
+installation to verify the object construction steps.
+
+```{r example}
+exdir <- system.file("extdata", package = "tQTLExperiment")
+
+tqe_ex <- tQTLExperiment(
+    plinkPrefix = file.path(exdir, "chr22-n100"),
+    phenoFile   = file.path(exdir, "mean-pheno-n100.bed"),
+    genome      = "hg38"
+)
+tqe_ex
+rowRanges(tqe_ex)
+tqtlGeno(tqe_ex)
+```
+
+The tensorQTL command for this example would be obtained with:
+
+```{r prepcmd}
+od  <- tempdir()
+cmd <- prepareTQTL(tqe_ex, outDir = od, mode = "cis_nominal")
+cat(cmd, "\n")
+```
+
+# Session info
+
+```{r sessioninfo}
+sessionInfo()
+```
