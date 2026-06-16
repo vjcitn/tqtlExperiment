@@ -257,7 +257,7 @@
 <span><span class="co">#&gt; rowRanges: GRanges with 20 features</span></span>
 <span><span class="co">#&gt; colData( 0 ) covariates:   </span></span>
 <span><span class="co">#&gt; geno: 100 samples x 69638 variants [BEDMatrix - lazy]</span></span>
-<span><span class="co">#&gt; plinkPrefix: /private/tmp/claude-502/RtmpIlKYIQ/temp_libpath104107362dc58/tQTLExperiment/extdata/chr22-n100 </span></span>
+<span><span class="co">#&gt; plinkPrefix: /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpbYmUMP/temp_libpath108bb1bea0898/tQTLExperiment/extdata/chr22-n100 </span></span>
 <span><span class="co">#&gt; use prepareTQTL() to write inputs and get CLI command</span></span>
 <span><span class="fu">rowRanges</span><span class="op">(</span><span class="va">tqe_ex</span><span class="op">)</span></span>
 <span><span class="co">#&gt; GRanges object with 20 ranges and 1 metadata column:</span></span>
@@ -277,18 +277,18 @@
 <span><span class="co">#&gt;   -------</span></span>
 <span><span class="co">#&gt;   seqinfo: 1 sequence from hg38 genome; no seqlengths</span></span>
 <span><span class="fu"><a href="../reference/tqtlGeno.html">tqtlGeno</a></span><span class="op">(</span><span class="va">tqe_ex</span><span class="op">)</span></span>
-<span><span class="co">#&gt; BEDMatrix: 100 x 69638 [/private/tmp/claude-502/RtmpIlKYIQ/temp_libpath104107362dc58/tQTLExperiment/extdata/chr22-n100.bed]</span></span></code></pre></div>
+<span><span class="co">#&gt; BEDMatrix: 100 x 69638 [/private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpbYmUMP/temp_libpath108bb1bea0898/tQTLExperiment/extdata/chr22-n100.bed]</span></span></code></pre></div>
 <p>The tensorQTL command for this example would be obtained with:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">od</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">cmd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/prepareTQTL.html">prepareTQTL</a></span><span class="op">(</span><span class="va">tqe_ex</span>, outDir <span class="op">=</span> <span class="va">od</span>, mode <span class="op">=</span> <span class="st">"cis_nominal"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Run the following command in a terminal with tensorqtl available:</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; python3 -m tensorqtl /private/tmp/claude-502/RtmpIlKYIQ/temp_libpath104107362dc58/tQTLExperiment/extdata/chr22-n100 /tmp/claude-502/RtmpIsgJdV/pheno.bed /tmp/claude-502/RtmpIsgJdV/tqtl_out --mode cis_nominal --maf_threshold 0.05 --window 1000000 -o /tmp/claude-502/RtmpIsgJdV</span></span>
+<span><span class="co">#&gt; python3 -m tensorqtl /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpbYmUMP/temp_libpath108bb1bea0898/tQTLExperiment/extdata/chr22-n100 /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmpNse4sP/pheno.bed /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmpNse4sP/tqtl_out --mode cis_nominal --maf_threshold 0.05 --window 1000000 -o /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmpNse4sP</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Then call readTQTL('/tmp/claude-502/RtmpIsgJdV', mode = 'cis_nominal') to load results into R.</span></span>
+<span><span class="co">#&gt; Then call readTQTL('/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmpNse4sP', mode = 'cis_nominal') to load results into R.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">cmd</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; python3 -m tensorqtl /private/tmp/claude-502/RtmpIlKYIQ/temp_libpath104107362dc58/tQTLExperiment/extdata/chr22-n100 /tmp/claude-502/RtmpIsgJdV/pheno.bed /tmp/claude-502/RtmpIsgJdV/tqtl_out --mode cis_nominal --maf_threshold 0.05 --window 1000000 -o /tmp/claude-502/RtmpIsgJdV</span></span></code></pre></div>
+<span><span class="co">#&gt; python3 -m tensorqtl /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpbYmUMP/temp_libpath108bb1bea0898/tQTLExperiment/extdata/chr22-n100 /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmpNse4sP/pheno.bed /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmpNse4sP/tqtl_out --mode cis_nominal --maf_threshold 0.05 --window 1000000 -o /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmpNse4sP</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="session-info">Session info<a class="anchor" aria-label="anchor" href="#session-info"></a>

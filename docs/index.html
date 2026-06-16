@@ -58,7 +58,6 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-
 <div class="section level1">
 <div class="page-header"><h1 id="tqtlexperiment-is-a-package-for-xqtl-data-management">tQTLExperiment is a package for xQTL data management<a class="anchor" aria-label="anchor" href="#tqtlexperiment-is-a-package-for-xqtl-data-management"></a>
 </h1></div>
@@ -125,20 +124,13 @@ Mapping files: 100%|████████████████████
 top-level pandera module will be **removed in a future version of pandera**.
 If you're using pandera to validate pandas objects, we highly recommend updating
 your import:
-</code></pre>
-</div>
-</div>
-</div>
-<div class="section level1">
-<h1 id="old-import">old import<a class="anchor" aria-label="anchor" href="#old-import"></a>
-</h1>
-<p>import pandera as pa</p>
-</div>
-<div class="section level1">
-<h1 id="new-import">new import<a class="anchor" aria-label="anchor" href="#new-import"></a>
-</h1>
-<p>import pandera.pandas as pa</p>
-<pre><code>
+
+# old import
+import pandera as pa
+
+# new import
+import pandera.pandas as pa
+
 If you're using pandera to validate objects from other compatible libraries
 like pyspark or polars, see the supported libraries section of the documentation
 for more information on how to import pandera:
@@ -146,9 +138,9 @@ for more information on how to import pandera:
 https://pandera.readthedocs.io/en/stable/supported_libraries.html
 
 To disable this warning, set the environment variable:
-</code></pre>
-<p>export DISABLE_PANDERA_IMPORT_WARNING=True</p>
-<pre><code>
+
+export DISABLE_PANDERA_IMPORT_WARNING=True
+
   warnings.warn(_future_warning, FutureWarning)
 cis-QTL mapping: nominal associations for all variant-phenotype pairs
   * 100 samples
@@ -165,6 +157,7 @@ cis-QTL mapping: nominal associations for all variant-phenotype pairs
     * writing output
 done.
 [Jun 16 07:16:39] Finished mapping</code></pre>
+</div>
 <div class="section level3">
 <h3 id="retrieving-results-to-r">Retrieving results to R<a class="anchor" aria-label="anchor" href="#retrieving-results-to-r"></a>
 </h3>
@@ -216,7 +209,7 @@ GRanges object with 71522 ranges and 9 metadata columns:
   seqinfo: 1 sequence from an unspecified genome; no seqlengths</code></pre>
 </div>
 </div>
-
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
