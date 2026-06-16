@@ -1,6 +1,6 @@
 Package: tQTLExperiment
 Title: SummarizedExperiment Interface for the tensorQTL eQTL Mapping Tool
-Version: 0.1.10
+Version: 0.1.14
 Authors@R: c(
     person("Vincent", "Carey", email = "stvjc@channing.harvard.edu",
            role = c("aut", "cre")),
@@ -30,10 +30,12 @@ Imports:
     IRanges,
     GenomeInfoDb,
     AnnotationDbi,
+    BiocFileCache,
     Matrix,
     BEDMatrix
 Suggests:
     arrow,
+    CSHLvc2026,
     EnsDb.Hsapiens.v79,
     BiocStyle,
     knitr,
