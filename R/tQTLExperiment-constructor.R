@@ -76,7 +76,7 @@ tQTLExperiment <- function(plinkPrefix, phenoFile, covFile = NULL,
 
     fam     <- read.table(fam_file, header = FALSE,
                           col.names = c("fid", "iid", "pat", "mat", "sex", "phen"))
-    fam_idx <- match(sample_ids, fam[["iid"]])
+    fam_idx <- .match_fam_ids(sample_ids, fam[["iid"]])
     missing_geno <- sample_ids[is.na(fam_idx)]
     if (length(missing_geno))
         warning("Samples in phenotype file not found in .fam file: ",
@@ -193,7 +193,7 @@ tQTLExperimentFromRSE <- function(se, plinkPrefix,
 
     fam     <- read.table(fam_file, header = FALSE,
                           col.names = c("fid", "iid", "pat", "mat", "sex", "phen"))
-    fam_idx <- match(sample_ids, fam[["iid"]])
+    fam_idx <- .match_fam_ids(sample_ids, fam[["iid"]])
     if (anyNA(fam_idx))
         warning("Samples in se not found in .fam file: ",
                 paste(sample_ids[is.na(fam_idx)], collapse = ", "))
