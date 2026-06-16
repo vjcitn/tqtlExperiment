@@ -4,7 +4,13 @@
 \alias{tQTLExperiment}
 \title{Construct a tQTLExperiment from input files}
 \usage{
-tQTLExperiment(plinkPrefix, phenoFile, covFile = NULL, assayName = "pheno")
+tQTLExperiment(
+  plinkPrefix,
+  phenoFile,
+  covFile = NULL,
+  assayName = "pheno",
+  genome = NA_character_
+)
 }
 \arguments{
 \item{plinkPrefix}{Path prefix for the PLINK file set (\code{.bed}, \code{.bim},
@@ -21,6 +27,9 @@ covariate file is used.}
 
 \item{assayName}{Name to assign the phenotype matrix in \code{assays()}.
 Defaults to \code{"pheno"}.}
+
+\item{genome}{Genome build string (e.g. \code{"hg38"}) assigned to the
+\code{seqinfo} of \code{rowRanges}. Defaults to \code{NA} (unspecified).}
 }
 \value{
 A \link{tQTLExperiment} object.
@@ -35,7 +44,8 @@ exdir <- system.file("extdata", package = "tQTLExperiment")
 tqe <- tQTLExperiment(
     plinkPrefix = file.path(exdir, "chr22-n100"),
     phenoFile   = file.path(exdir, "mean-pheno-n100.bed"),
-    covFile     = file.path(exdir, "cov-n100-tqtl.tsv")
+    covFile     = file.path(exdir, "cov-n100-tqtl.tsv"),
+    genome      = "hg38"
 )
 tqe
 

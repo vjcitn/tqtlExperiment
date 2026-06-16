@@ -15,6 +15,8 @@
 #'   covariate file is used.
 #' @param assayName Name to assign the phenotype matrix in `assays()`.
 #'   Defaults to `"pheno"`.
+#' @param genome Genome build string (e.g. `"hg38"`) assigned to the
+#'   `seqinfo` of `rowRanges`. Defaults to `NA` (unspecified).
 #'
 #' @return A [tQTLExperiment] object.
 #'
@@ -23,13 +25,14 @@
 #' tqe <- tQTLExperiment(
 #'     plinkPrefix = file.path(exdir, "chr22-n100"),
 #'     phenoFile   = file.path(exdir, "mean-pheno-n100.bed"),
-#'     covFile     = file.path(exdir, "cov-n100-tqtl.tsv")
+#'     covFile     = file.path(exdir, "cov-n100-tqtl.tsv"),
+#'     genome      = "hg38"
 #' )
 #' tqe
 #'
 #' @export
 tQTLExperiment <- function(plinkPrefix, phenoFile, covFile = NULL,
-                           assayName = "pheno") {
+                           assayName = "pheno", genome = NA_character_) {
     # ---- phenotype BED --------------------------------------------------
     pheno_raw <- read.table(phenoFile, header = TRUE, sep = "\t",
                             check.names = FALSE, comment.char = "")
@@ -52,6 +55,7 @@ tQTLExperiment <- function(plinkPrefix, phenoFile, covFile = NULL,
         phenotype_id = feature_ids
     )
     names(row_gr) <- feature_ids
+    if (!is.na(genome)) GenomeInfoDb::genome(row_gr) <- genome
 
     # ---- covariates (optional) ------------------------------------------
     # tensorQTL format: covariates x samples (rows = covariates)
@@ -125,6 +129,8 @@ tQTLExperiment <- function(plinkPrefix, phenoFile, covFile = NULL,
 #'   [ExploreModelMatrix](https://bioconductor.org/packages/ExploreModelMatrix)
 #'   package. Rename `(Intercept)` to `int` if including an intercept.
 #' @param assayName Name of the assay in `se` to use. Defaults to first.
+#' @param genome Genome build string (e.g. `"hg38"`) assigned to the
+#'   `seqinfo` of `rowRanges`. Defaults to `NA` (unspecified).
 #' @param featureIdColumn Optional mcols column name to use as
 #'   `phenotype_id`; defaults to `rownames(se)`.
 #'
@@ -149,7 +155,8 @@ tQTLExperiment <- function(plinkPrefix, phenoFile, covFile = NULL,
 tQTLExperimentFromRSE <- function(se, plinkPrefix,
                                    covariateMatrix  = NULL,
                                    assayName        = NULL,
-                                   featureIdColumn  = NULL) {
+                                   featureIdColumn  = NULL,
+                                   genome           = NA_character_) {
     if (!is(se, "RangedSummarizedExperiment"))
         stop("'se' must be a RangedSummarizedExperiment")
 
@@ -172,6 +179,7 @@ tQTLExperimentFromRSE <- function(se, plinkPrefix,
     names(rr) <- feature_ids
     if (!"phenotype_id" %in% names(S4Vectors::mcols(rr)))
         rr$phenotype_id <- feature_ids
+    if (!is.na(genome)) GenomeInfoDb::genome(rr) <- genome
 
     # covariates
     if (!is.null(covariateMatrix)) {

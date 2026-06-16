@@ -3,6 +3,8 @@
 #' @import GenomicRanges
 #' @importFrom S4Vectors DataFrame SimpleList mcols
 #' @importFrom Matrix Matrix forceSymmetric
+#' @importFrom GenomeInfoDb genome
+#' @importFrom AnnotationDbi select
 #' @importFrom utils head read.table write.table
 #' @importFrom stats setNames model.matrix
 NULL

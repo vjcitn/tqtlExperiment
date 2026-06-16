@@ -9,7 +9,8 @@ tQTLExperimentFromRSE(
   plinkPrefix,
   covariateMatrix = NULL,
   assayName = NULL,
-  featureIdColumn = NULL
+  featureIdColumn = NULL,
+  genome = NA_character_
 )
 }
 \arguments{
@@ -27,6 +28,9 @@ package. Rename \code{(Intercept)} to \code{int} if including an intercept.}
 
 \item{featureIdColumn}{Optional mcols column name to use as
 \code{phenotype_id}; defaults to \code{rownames(se)}.}
+
+\item{genome}{Genome build string (e.g. \code{"hg38"}) assigned to the
+\code{seqinfo} of \code{rowRanges}. Defaults to \code{NA} (unspecified).}
 }
 \value{
 A \link{tQTLExperiment} object.
