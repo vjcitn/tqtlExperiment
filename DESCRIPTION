@@ -1,6 +1,6 @@
 Package: tQTLExperiment
 Title: SummarizedExperiment Interface for the tensorQTL eQTL Mapping Tool
-Version: 0.1.21
+Version: 0.1.22
 Authors@R: c(
     person("Vincent", "Carey", email = "stvjc@channing.harvard.edu",
            role = c("aut", "cre")),
@@ -39,7 +39,9 @@ Imports:
     ggbeeswarm,
     shiny,
     bslib,
-    DT
+    DT,
+    ensembldb,
+    EnsDb.Hsapiens.v79
 Suggests:
     arrow,
     CSHLvc2026,
