@@ -40,6 +40,7 @@
 #'   for use with [tQTLExperimentFromRSE()].
 #'
 #' @importFrom BiocFileCache BiocFileCache bfccache
+#' @importFrom curl curl_download new_handle
 #' @importFrom utils download.file
 #' @export
 #'
@@ -73,10 +74,16 @@ cache_mage_chr17_plink <- function(
             if (verbose) message("[ cache hit   ] ", basename(dest))
         } else {
             url <- paste0(release_url, "/", basename(dest))
-            if (verbose) message("[ downloading ] ", basename(dest),
-                                 "  (", url, ")")
-            utils::download.file(url, destfile = dest, mode = "wb",
-                                 quiet = !verbose)
+            if (verbose) message("[ downloading ] ", basename(dest))
+            tryCatch({
+                curl::curl_download(url, destfile = dest,
+                                    handle = curl::new_handle(followlocation = TRUE),
+                                    quiet = !verbose)
+            }, error = function(e) {
+                if (verbose) message("  (curl unavailable; using standard download)")
+                utils::download.file(url, destfile = dest, mode = "wb",
+                                     quiet = !verbose)
+            })
         }
     }
 

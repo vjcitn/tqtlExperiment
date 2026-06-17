@@ -1,6 +1,6 @@
 Package: tQTLExperiment
 Title: SummarizedExperiment Interface for the tensorQTL eQTL Mapping Tool
-Version: 0.1.14
+Version: 0.1.15
 Authors@R: c(
     person("Vincent", "Carey", email = "stvjc@channing.harvard.edu",
            role = c("aut", "cre")),
@@ -31,6 +31,7 @@ Imports:
     GenomeInfoDb,
     AnnotationDbi,
     BiocFileCache,
+    curl,
     Matrix,
     BEDMatrix
 Suggests:
@@ -47,3 +48,5 @@ SystemRequirements: Python (>= 3.8) with tensorqtl installed
     (pip install tensorqtl). GPU acceleration requires CUDA or
     Apple MPS (PyTorch >= 1.12 on macOS 12.3+).
 Config/roxygen2/version: 8.0.0
+URL: https://github.com/vjcitn/tQTLExperiment
+BugReports: https://github.com/vjcitn/tQTLExperiment/issues
