@@ -1,6 +1,6 @@
 Package: tQTLExperiment
 Title: SummarizedExperiment Interface for the tensorQTL eQTL Mapping Tool
-Version: 0.1.15
+Version: 0.1.16
 Authors@R: c(
     person("Vincent", "Carey", email = "stvjc@channing.harvard.edu",
            role = c("aut", "cre")),
@@ -32,12 +32,15 @@ Imports:
     AnnotationDbi,
     BiocFileCache,
     curl,
+    rlang,
     Matrix,
     BEDMatrix
 Suggests:
     arrow,
     CSHLvc2026,
     EnsDb.Hsapiens.v79,
+    ggplot2,
+    ggbeeswarm,
     BiocStyle,
     knitr,
     rmarkdown,

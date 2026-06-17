@@ -200,11 +200,13 @@ hist(pairs$pval_nominal, breaks = 50,
      xlab = "p-value")
 ```
 
-# Example data (chr22)
+# Demo data
 
-The package ships with a small example dataset (20 genes, 100 samples,
-chromosome 22) that can be used without external data or a tensorQTL
-installation to verify the object construction steps.
+The package includes two datasets for testing and exploration.
+
+## Small example (chr22, 20 genes)
+
+For testing object construction without external dependencies:
 
 ```{r example}
 exdir <- system.file("extdata", package = "tQTLExperiment")
@@ -215,16 +217,25 @@ tqe_ex <- tQTLExperiment(
     genome      = "hg38"
 )
 tqe_ex
-rowRanges(tqe_ex)
-tqtlGeno(tqe_ex)
 ```
 
-The tensorQTL command for this example would be obtained with:
+## Realistic demo (chr17, 50 genes, pre-computed results)
 
-```{r prepcmd}
-od  <- tempdir()
-cmd <- prepareTQTL(tqe_ex, outDir = od, mode = "cis_nominal")
-cat(cmd, "\n")
+Pre-computed tensorQTL `cis_nominal` results that demonstrate the full workflow:
+
+```{r demo_load}
+demodir <- system.file("demodir", package = "tQTLExperiment")
+
+# Load results: 71k+ feature-variant pairs on chr17
+res <- readTQTL(demodir, mode = "cis_nominal")
+res$pairs
+```
+
+Top associations by nominal p-value:
+
+```{r demo_explore}
+top_hits <- res$pairs[order(res$pairs$pval_nominal)][1:10]
+top_hits[, c("phenotype_id", "variant_id", "pval_nominal", "slope")]
 ```
 
 # Session info
