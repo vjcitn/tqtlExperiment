@@ -57,20 +57,20 @@ Navigation is via dropdown menus: select a gene symbol (searchable), then
 a cis-SNP for that gene, then click "Plot" to visualize.
 }
 \examples{
-\dontrun{
-# Build example tQTLExperiment
-exdir <- system.file("extdata", package = "tQTLExperiment")
-tqe <- tQTLExperiment(
-    plinkPrefix = file.path(exdir, "chr22-n100"),
-    phenoFile   = file.path(exdir, "mean-pheno-n100.bed"),
-    genome      = "hg38"
-)
+if (interactive()) {
+  # Build example tQTLExperiment
+  exdir <- system.file("extdata", package = "tQTLExperiment")
+  tqe <- tQTLExperiment(
+      plinkPrefix = file.path(exdir, "chr22-n100"),
+      phenoFile   = file.path(exdir, "mean-pheno-n100.bed"),
+      genome      = "hg38"
+  )
 
-# Load demo results
-demodir <- system.file("demodir", package = "tQTLExperiment")
-res <- readTQTL(demodir, mode = "cis_nominal")
+  # Load demo results
+  demodir <- system.file("demodir", package = "tQTLExperiment")
+  res <- readTQTL(demodir, mode = "cis_nominal")
 
-# Launch browser
-app <- run_cis_qtl_browser(tqe, res$pairs, pval_thresh = 0.05)
+  # Launch browser
+  app <- run_cis_qtl_browser(tqe, res$pairs, pval_thresh = 0.05)
 }
 }
