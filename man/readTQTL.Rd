@@ -33,15 +33,10 @@ Reads the output files written by a tensorQTL run into
 originating \link{tQTLExperiment}.
 }
 \examples{
-exdir <- system.file("extdata", package = "tQTLExperiment")
-tqe <- tQTLExperiment(
-    plinkPrefix = file.path(exdir, "chr22-n100"),
-    phenoFile   = file.path(exdir, "mean-pheno-n100.bed")
-)
-od <- tempdir()
-cmd <- prepareTQTL(tqe, outDir = od, mode = "cis_nominal")
-# (user runs cmd in terminal)
-# res <- readTQTL(od, mode = "cis_nominal", x = tqe)
+# Load pre-computed tensorQTL results from demo data
+demodir <- system.file("demodir", package = "tQTLExperiment")
+res <- readTQTL(demodir, mode = "cis_nominal")
+head(res$pairs)
 
 }
 \seealso{

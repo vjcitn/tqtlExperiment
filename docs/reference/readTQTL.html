@@ -11,7 +11,7 @@ originating tQTLExperiment."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">tQTLExperiment</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.14</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.16</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,22 +90,37 @@ statistics.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">exdir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, package <span class="op">=</span> <span class="st">"tQTLExperiment"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">tqe</span> <span class="op">&lt;-</span> <span class="fu"><a href="tQTLExperiment.html">tQTLExperiment</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>    plinkPrefix <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">exdir</span>, <span class="st">"chr22-n100"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    phenoFile   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">exdir</span>, <span class="st">"mean-pheno-n100.bed"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Extracting number of samples and rownames from chr22-n100.fam...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Extracting number of variants and colnames from chr22-n100.bim...</span>
-<span class="r-in"><span><span class="va">od</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">cmd</span> <span class="op">&lt;-</span> <span class="fu"><a href="prepareTQTL.html">prepareTQTL</a></span><span class="op">(</span><span class="va">tqe</span>, outDir <span class="op">=</span> <span class="va">od</span>, mode <span class="op">=</span> <span class="st">"cis_nominal"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Run the following command in a terminal with tensorqtl available:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> python3 -m tensorqtl /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpotkzK9/temp_libpath10c16232f7b5e/tQTLExperiment/extdata/chr22-n100 /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmpkmYph4/pheno.bed /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmpkmYph4/tqtl_out --mode cis_nominal --maf_threshold 0.05 --window 1000000 -o /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmpkmYph4</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Then call readTQTL('/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmpkmYph4', mode = 'cis_nominal') to load results into R.</span>
-<span class="r-in"><span><span class="co"># (user runs cmd in terminal)</span></span></span>
-<span class="r-in"><span><span class="co"># res &lt;- readTQTL(od, mode = "cis_nominal", x = tqe)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load pre-computed tensorQTL results from demo data</span></span></span>
+<span class="r-in"><span><span class="va">demodir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"demodir"</span>, package <span class="op">=</span> <span class="st">"tQTLExperiment"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">readTQTL</span><span class="op">(</span><span class="va">demodir</span>, mode <span class="op">=</span> <span class="st">"cis_nominal"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">pairs</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> GRanges object with 6 ranges and 10 metadata columns:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       seqnames    ranges strand |      phenotype_id    variant_id</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          &lt;Rle&gt; &lt;IRanges&gt;  &lt;Rle&gt; |       &lt;character&gt;   &lt;character&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [1]       17    114101      * | ENSG00000280279.1 17:114101:G:A</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [2]       17    114226      * | ENSG00000280279.1 17:114226:A:G</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [3]       17    116159      * | ENSG00000280279.1 17:116159:G:C</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [4]       17    116270      * | ENSG00000280279.1 17:116270:G:C</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [5]       17    116354      * | ENSG00000280279.1 17:116354:C:T</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [6]       17    118358      * | ENSG00000280279.1 17:118358:C:T</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       start_distance end_distance        af ma_samples  ma_count pval_nominal</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            &lt;integer&gt;    &lt;integer&gt; &lt;numeric&gt;  &lt;integer&gt; &lt;integer&gt;    &lt;numeric&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [1]          37236        37235 0.4500684        510       658     0.213275</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [2]          37361        37360 0.1976744        247       289     0.491346</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [3]          39294        39293 0.4507524        515       659     0.263432</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [4]          39405        39404 0.2647059        326       387     0.164120</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [5]          39489        39488 0.4863201        515       711     0.291421</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [6]          41493        41492 0.0978112        136       143     0.656597</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           slope  slope_se</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &lt;numeric&gt; &lt;numeric&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [1] 0.0618208 0.0496256</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [2] 0.0431121 0.0626146</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [3] 0.0559091 0.0499538</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [4] 0.0794705 0.0570578</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [5] 0.0490658 0.0464724</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   [6] 0.0402160 0.0904124</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   -------</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   seqinfo: 1 sequence from an unspecified genome; no seqlengths</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

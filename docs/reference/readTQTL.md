@@ -90,22 +90,37 @@ A named list of
 <div class="sourceCode">
 
 ``` r
-exdir <- system.file("extdata", package = "tQTLExperiment")
-tqe <- tQTLExperiment(
-    plinkPrefix = file.path(exdir, "chr22-n100"),
-    phenoFile   = file.path(exdir, "mean-pheno-n100.bed")
-)
-#> Extracting number of samples and rownames from chr22-n100.fam...
-#> Extracting number of variants and colnames from chr22-n100.bim...
-od <- tempdir()
-cmd <- prepareTQTL(tqe, outDir = od, mode = "cis_nominal")
-#> Run the following command in a terminal with tensorqtl available:
-#> 
-#> python3 -m tensorqtl /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpotkzK9/temp_libpath10c16232f7b5e/tQTLExperiment/extdata/chr22-n100 /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmpkmYph4/pheno.bed /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmpkmYph4/tqtl_out --mode cis_nominal --maf_threshold 0.05 --window 1000000 -o /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmpkmYph4
-#> 
-#> Then call readTQTL('/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmpkmYph4', mode = 'cis_nominal') to load results into R.
-# (user runs cmd in terminal)
-# res <- readTQTL(od, mode = "cis_nominal", x = tqe)
+# Load pre-computed tensorQTL results from demo data
+demodir <- system.file("demodir", package = "tQTLExperiment")
+res <- readTQTL(demodir, mode = "cis_nominal")
+head(res$pairs)
+#> GRanges object with 6 ranges and 10 metadata columns:
+#>       seqnames    ranges strand |      phenotype_id    variant_id
+#>          <Rle> <IRanges>  <Rle> |       <character>   <character>
+#>   [1]       17    114101      * | ENSG00000280279.1 17:114101:G:A
+#>   [2]       17    114226      * | ENSG00000280279.1 17:114226:A:G
+#>   [3]       17    116159      * | ENSG00000280279.1 17:116159:G:C
+#>   [4]       17    116270      * | ENSG00000280279.1 17:116270:G:C
+#>   [5]       17    116354      * | ENSG00000280279.1 17:116354:C:T
+#>   [6]       17    118358      * | ENSG00000280279.1 17:118358:C:T
+#>       start_distance end_distance        af ma_samples  ma_count pval_nominal
+#>            <integer>    <integer> <numeric>  <integer> <integer>    <numeric>
+#>   [1]          37236        37235 0.4500684        510       658     0.213275
+#>   [2]          37361        37360 0.1976744        247       289     0.491346
+#>   [3]          39294        39293 0.4507524        515       659     0.263432
+#>   [4]          39405        39404 0.2647059        326       387     0.164120
+#>   [5]          39489        39488 0.4863201        515       711     0.291421
+#>   [6]          41493        41492 0.0978112        136       143     0.656597
+#>           slope  slope_se
+#>       <numeric> <numeric>
+#>   [1] 0.0618208 0.0496256
+#>   [2] 0.0431121 0.0626146
+#>   [3] 0.0559091 0.0499538
+#>   [4] 0.0794705 0.0570578
+#>   [5] 0.0490658 0.0464724
+#>   [6] 0.0402160 0.0904124
+#>   -------
+#>   seqinfo: 1 sequence from an unspecified genome; no seqlengths
 ```
 
 </div>

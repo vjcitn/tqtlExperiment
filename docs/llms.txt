@@ -196,6 +196,8 @@ Some improvements are needed …
 -   `cache_mage_chr17_plink()` : Cache MAGE chr17 PLINK files from
     GitHub releases
 -   `findTQTL()` : Find a Python installation with tensorQTL
+-   `plotGenotypeEffect()` : Plot phenotype values grouped by SNP
+    genotype
 -   `prepareTQTL()` : Prepare input files and return the tensorQTL CLI
     command
 -   `readTQTL()` : Read tensorQTL results into R

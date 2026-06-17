@@ -238,6 +238,23 @@ top_hits <- res$pairs[order(res$pairs$pval_nominal)][1:10]
 top_hits[, c("phenotype_id", "variant_id", "pval_nominal", "slope")]
 ```
 
+```{r shviz}
+data(mageSEfilt, package="CSHLvc2026")
+plink_paths <- cache_mage_chr17_plink()
+plpre <- tools::file_path_sans_ext(plink_paths[["bed"]])
+cd <- as.data.frame(colData(mageSEfilt))
+mm <- model.matrix(~ batch + population + sex, data = cd)
+mm <- mm[, -1, drop = FALSE]   # remove (Intercept)
+tqe <- tQTLExperimentFromRSE(
+    se              = mageSEfilt,
+    plinkPrefix     = plpre,
+    covariateMatrix = mm,
+    genome          = "hg38"
+)
+tqe
+plotGenotypeEffect(tqe, "17:410391:T:C", "ENSG00000187624.9")
+```
+
 # Session info
 
 ```{r sessioninfo}

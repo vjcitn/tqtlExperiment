@@ -312,11 +312,15 @@ hist(pairs$pval_nominal, breaks = 50,
 
 <div class="section level2">
 
-## Example data (chr22)
+## Demo data
 
-The package ships with a small example dataset (20 genes, 100 samples,
-chromosome 22) that can be used without external data or a tensorQTL
-installation to verify the object construction steps.
+The package includes two datasets for testing and exploration.
+
+<div class="section level3">
+
+### Small example (chr22, 20 genes)
+
+For testing object construction without external dependencies:
 
 <div id="cb15" class="sourceCode">
 
@@ -337,46 +341,150 @@ tqe_ex
 #> rowRanges: GRanges with 20 features
 #> colData( 0 ) covariates:   
 #> geno: 100 samples x 69638 variants [BEDMatrix - lazy]
-#> plinkPrefix: /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpotkzK9/temp_libpath10c16232f7b5e/tQTLExperiment/extdata/chr22-n100 
+#> plinkPrefix: /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpuS4nx1/temp_libpath5a4b140770e5/tQTLExperiment/extdata/chr22-n100 
 #> use prepareTQTL() to write inputs and get CLI command
-rowRanges(tqe_ex)
-#> GRanges object with 20 ranges and 1 metadata column:
-#>                   seqnames    ranges strand |    phenotype_id
-#>                      <Rle> <IRanges>  <Rle> |     <character>
-#>   ENSG00000100181       22  17082777      * | ENSG00000100181
-#>   ENSG00000237438       22  17517460      * | ENSG00000237438
-#>   ENSG00000177663       22  17565844      * | ENSG00000177663
-#>   ENSG00000069998       22  17646177      * | ENSG00000069998
-#>   ENSG00000093072       22  17702879      * | ENSG00000093072
-#>               ...      ...       ...    ... .             ...
-#>   ENSG00000260924       22  19158908      * | ENSG00000260924
-#>   ENSG00000100075       22  19166343      * | ENSG00000100075
-#>   ENSG00000185608       22  19419425      * | ENSG00000185608
-#>   ENSG00000100084       22  19435224      * | ENSG00000100084
-#>   ENSG00000185065       22  19435416      * | ENSG00000185065
-#>   -------
-#>   seqinfo: 1 sequence from hg38 genome; no seqlengths
-tqtlGeno(tqe_ex)
-#> BEDMatrix: 100 x 69638 [/private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpotkzK9/temp_libpath10c16232f7b5e/tQTLExperiment/extdata/chr22-n100.bed]
 ```
 
 </div>
 
-The tensorQTL command for this example would be obtained with:
+</div>
+
+<div class="section level3">
+
+### Realistic demo (chr17, 50 genes, pre-computed results)
+
+Pre-computed tensorQTL `cis_nominal` results that demonstrate the full
+workflow:
 
 <div id="cb16" class="sourceCode">
 
 ``` r
-od  <- tempdir()
-cmd <- prepareTQTL(tqe_ex, outDir = od, mode = "cis_nominal")
-#> Run the following command in a terminal with tensorqtl available:
-#> 
-#> python3 -m tensorqtl /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpotkzK9/temp_libpath10c16232f7b5e/tQTLExperiment/extdata/chr22-n100 /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmpwkAvcF/pheno.bed /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmpwkAvcF/tqtl_out --mode cis_nominal --maf_threshold 0.05 --window 1000000 -o /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmpwkAvcF
-#> 
-#> Then call readTQTL('/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmpwkAvcF', mode = 'cis_nominal') to load results into R.
-cat(cmd, "\n")
-#> python3 -m tensorqtl /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpotkzK9/temp_libpath10c16232f7b5e/tQTLExperiment/extdata/chr22-n100 /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmpwkAvcF/pheno.bed /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmpwkAvcF/tqtl_out --mode cis_nominal --maf_threshold 0.05 --window 1000000 -o /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmpwkAvcF
+demodir <- system.file("demodir", package = "tQTLExperiment")
+
+# Load results: 71k+ feature-variant pairs on chr17
+res <- readTQTL(demodir, mode = "cis_nominal")
+res$pairs
+#> GRanges object with 393196 ranges and 10 metadata columns:
+#>            seqnames    ranges strand |      phenotype_id     variant_id
+#>               <Rle> <IRanges>  <Rle> |       <character>    <character>
+#>        [1]       17    114101      * | ENSG00000280279.1  17:114101:G:A
+#>        [2]       17    114226      * | ENSG00000280279.1  17:114226:A:G
+#>        [3]       17    116159      * | ENSG00000280279.1  17:116159:G:C
+#>        [4]       17    116270      * | ENSG00000280279.1  17:116270:G:C
+#>        [5]       17    116354      * | ENSG00000280279.1  17:116354:C:T
+#>        ...      ...       ...    ... .               ...            ...
+#>   [393192]       17   5221648      * | ENSG00000263219.1 17:5221648:C:T
+#>   [393193]       17   5221790      * | ENSG00000263219.1 17:5221790:C:A
+#>   [393194]       17   5221954      * | ENSG00000263219.1 17:5221954:A:G
+#>   [393195]       17   5221997      * | ENSG00000263219.1 17:5221997:C:T
+#>   [393196]       17   5222038      * | ENSG00000263219.1 17:5222038:A:T
+#>            start_distance end_distance        af ma_samples  ma_count
+#>                 <integer>    <integer> <numeric>  <integer> <integer>
+#>        [1]          37236        37235  0.450068        510       658
+#>        [2]          37361        37360  0.197674        247       289
+#>        [3]          39294        39293  0.450752        515       659
+#>        [4]          39405        39404  0.264706        326       387
+#>        [5]          39489        39488  0.486320        515       711
+#>        ...            ...          ...       ...        ...       ...
+#>   [393192]         999558       999557 0.0595075         81        87
+#>   [393193]         999700       999699 0.3522572        396       515
+#>   [393194]         999864       999863 0.4418605        484       646
+#>   [393195]         999907       999906 0.0827633        112       121
+#>   [393196]         999948       999947 0.4418605        484       646
+#>            pval_nominal      slope  slope_se
+#>               <numeric>  <numeric> <numeric>
+#>        [1]     0.213275  0.0618208 0.0496256
+#>        [2]     0.491346  0.0431121 0.0626146
+#>        [3]     0.263432  0.0559091 0.0499538
+#>        [4]     0.164120  0.0794705 0.0570578
+#>        [5]     0.291421  0.0490658 0.0464724
+#>        ...          ...        ...       ...
+#>   [393192]     0.883109 -0.0172224 0.1170930
+#>   [393193]     0.248010  0.0752312 0.0650699
+#>   [393194]     0.686174  0.0240168 0.0594152
+#>   [393195]     0.762729  0.0299093 0.0990322
+#>   [393196]     0.686174  0.0240168 0.0594152
+#>   -------
+#>   seqinfo: 1 sequence from an unspecified genome; no seqlengths
 ```
+
+</div>
+
+Top associations by nominal p-value:
+
+<div id="cb17" class="sourceCode">
+
+``` r
+top_hits <- res$pairs[order(res$pairs$pval_nominal)][1:10]
+top_hits[, c("phenotype_id", "variant_id", "pval_nominal", "slope")]
+#> GRanges object with 10 ranges and 4 metadata columns:
+#>        seqnames    ranges strand |      phenotype_id    variant_id pval_nominal
+#>           <Rle> <IRanges>  <Rle> |       <character>   <character>    <numeric>
+#>    [1]       17    410391      * | ENSG00000187624.9 17:410391:T:C 3.11053e-163
+#>    [2]       17    410351      * | ENSG00000187624.9 17:410351:G:T 6.25116e-163
+#>    [3]       17    409513      * | ENSG00000187624.9 17:409513:A:G 3.30974e-162
+#>    [4]       17    409857      * | ENSG00000187624.9 17:409857:G:A 1.00181e-159
+#>    [5]       17    410971      * | ENSG00000187624.9 17:410971:G:A 8.13960e-113
+#>    [6]       17    410956      * | ENSG00000187624.9 17:410956:G:A 1.56592e-110
+#>    [7]       17    399065      * | ENSG00000187624.9 17:399065:C:T 4.89702e-107
+#>    [8]       17    412764      * | ENSG00000187624.9 17:412764:A:G  5.00737e-73
+#>    [9]       17    416189      * | ENSG00000187624.9 17:416189:G:C  5.05483e-72
+#>   [10]       17    409016      * | ENSG00000187624.9 17:409016:C:A  5.70008e-72
+#>            slope
+#>        <numeric>
+#>    [1]   1.92088
+#>    [2]   1.92108
+#>    [3]   1.92089
+#>    [4]   1.91371
+#>    [5]   1.78995
+#>    [6]   1.76924
+#>    [7]  -1.71253
+#>    [8]   1.48159
+#>    [9]   1.48194
+#>   [10]   1.47057
+#>   -------
+#>   seqinfo: 1 sequence from an unspecified genome; no seqlengths
+```
+
+</div>
+
+<div id="cb18" class="sourceCode">
+
+``` r
+data(mageSEfilt, package="CSHLvc2026")
+plink_paths <- cache_mage_chr17_plink()
+#> [ cache hit   ] CCDG_mage_chr17.fam
+#> [ cache hit   ] CCDG_mage_chr17.bim
+#> [ cache hit   ] CCDG_mage_chr17.bed
+#> [ validate    ] Checking .bed magic bytes ...
+#> [ validate    ] .bed magic bytes OK.
+plpre <- tools::file_path_sans_ext(plink_paths[["bed"]])
+cd <- as.data.frame(colData(mageSEfilt))
+mm <- model.matrix(~ batch + population + sex, data = cd)
+mm <- mm[, -1, drop = FALSE]   # remove (Intercept)
+tqe <- tQTLExperimentFromRSE(
+    se              = mageSEfilt,
+    plinkPrefix     = plpre,
+    covariateMatrix = mm,
+    genome          = "hg38"
+)
+#> Extracting number of samples and rownames from CCDG_mage_chr17.fam...
+#> Extracting number of variants and colnames from CCDG_mage_chr17.bim...
+tqe
+#> class: tQTLExperiment
+#> features: 15116  samples: 731 
+#> assays( 1 ): pseudocounts 
+#> rowRanges: GRanges with 15116 features
+#> colData( 27 ) covariates: batch, populationASW, populationBEB, populationCDX ... 
+#> geno: 731 samples x 2075523 variants [BEDMatrix - lazy]
+#> plinkPrefix: /Users/vincentcarey/Library/Caches/org.R-project.R/R/BiocFileCache/CCDG_mage_chr17_plink/CCDG_mage_chr17 
+#> use prepareTQTL() to write inputs and get CLI command
+plotGenotypeEffect(tqe, "17:410391:T:C", "ENSG00000187624.9")
+```
+
+</div>
+
+![](tQTLExperiment_files/figure-html/shviz-1.png)
 
 </div>
 
@@ -386,7 +494,7 @@ cat(cmd, "\n")
 
 ## Session info
 
-<div id="cb17" class="sourceCode">
+<div id="cb19" class="sourceCode">
 
 ``` r
 sessionInfo()
@@ -409,7 +517,7 @@ sessionInfo()
 #> [8] base     
 #> 
 #> other attached packages:
-#>  [1] tQTLExperiment_0.1.14       SummarizedExperiment_1.42.0
+#>  [1] tQTLExperiment_0.1.16       SummarizedExperiment_1.42.0
 #>  [3] Biobase_2.72.0              GenomicRanges_1.64.0       
 #>  [5] Seqinfo_1.2.0               IRanges_2.46.0             
 #>  [7] S4Vectors_0.50.1            BiocGenerics_0.59.7        
@@ -417,29 +525,34 @@ sessionInfo()
 #> [11] matrixStats_1.5.0           BiocStyle_2.40.0           
 #> 
 #> loaded via a namespace (and not attached):
-#>  [1] KEGGREST_1.52.0      httr2_1.2.2          xfun_0.58           
-#>  [4] bslib_0.11.0         htmlwidgets_1.6.4    lattice_0.22-9      
-#>  [7] vctrs_0.7.3          tools_4.6.0          curl_7.1.0          
-#> [10] tibble_3.3.1         AnnotationDbi_1.74.0 RSQLite_3.53.1      
-#> [13] blob_1.3.0           pkgconfig_2.0.3      Matrix_1.7-5        
-#> [16] data.table_1.18.4    dbplyr_2.5.2         desc_1.4.3          
-#> [19] BEDMatrix_2.0.4      lifecycle_1.0.5      compiler_4.6.0      
-#> [22] textshaping_1.0.5    Biostrings_2.80.1    GenomeInfoDb_1.48.0 
-#> [25] htmltools_0.5.9      sass_0.4.10          yaml_2.3.12         
-#> [28] pkgdown_2.2.0        pillar_1.11.1        crayon_1.5.3        
-#> [31] jquerylib_0.1.4      DelayedArray_0.38.2  cachem_1.1.0        
-#> [34] abind_1.4-8          tidyselect_1.2.1     digest_0.6.39       
-#> [37] dplyr_1.2.1          bookdown_0.46        fastmap_1.2.0       
-#> [40] grid_4.6.0           cli_3.6.6            SparseArray_1.12.2  
-#> [43] magrittr_2.0.5       S4Arrays_1.12.0      UCSC.utils_1.8.0    
-#> [46] filelock_1.0.3       rappdirs_0.3.4       bit64_4.8.2         
-#> [49] rmarkdown_2.31       XVector_0.52.0       httr_1.4.8          
-#> [52] bit_4.6.0            otel_0.2.0           ragg_1.5.2          
-#> [55] png_0.1-9            memoise_2.0.1        evaluate_1.0.5      
-#> [58] knitr_1.51           crochet_2.3.0        BiocFileCache_3.2.0 
-#> [61] rlang_1.2.0          glue_1.8.1           DBI_1.3.0           
-#> [64] BiocManager_1.30.27  jsonlite_2.0.0       R6_2.6.1            
-#> [67] systemfonts_1.3.2    fs_2.1.0
+#>  [1] tidyselect_1.2.1     vipor_0.4.7          dplyr_1.2.1         
+#>  [4] farver_2.1.2         blob_1.3.0           filelock_1.0.3      
+#>  [7] arrow_24.0.0         Biostrings_2.80.1    S7_0.2.2            
+#> [10] fastmap_1.2.0        BiocFileCache_3.2.0  digest_0.6.39       
+#> [13] BEDMatrix_2.0.4      lifecycle_1.0.5      KEGGREST_1.52.0     
+#> [16] RSQLite_3.53.1       magrittr_2.0.5       compiler_4.6.0      
+#> [19] rlang_1.2.0          sass_0.4.10          tools_4.6.0         
+#> [22] yaml_2.3.12          data.table_1.18.4    knitr_1.51          
+#> [25] labeling_0.4.3       S4Arrays_1.12.0      htmlwidgets_1.6.4   
+#> [28] bit_4.6.0            curl_7.1.0           DelayedArray_0.38.2 
+#> [31] RColorBrewer_1.1-3   abind_1.4-8          withr_3.0.2         
+#> [34] purrr_1.2.2          desc_1.4.3           grid_4.6.0          
+#> [37] ggplot2_4.0.3        scales_1.4.0         dichromat_2.0-0.1   
+#> [40] cli_3.6.6            rmarkdown_2.31       crayon_1.5.3        
+#> [43] ragg_1.5.2           otel_0.2.0           httr_1.4.8          
+#> [46] ggbeeswarm_0.7.3     DBI_1.3.0            cachem_1.1.0        
+#> [49] assertthat_0.2.1     AnnotationDbi_1.74.0 BiocManager_1.30.27 
+#> [52] XVector_0.52.0       vctrs_0.7.3          Matrix_1.7-5        
+#> [55] jsonlite_2.0.0       bookdown_0.46        bit64_4.8.2         
+#> [58] beeswarm_0.4.0       systemfonts_1.3.2    jquerylib_0.1.4     
+#> [61] crochet_2.3.0        glue_1.8.1           pkgdown_2.2.0       
+#> [64] gtable_0.3.6         GenomeInfoDb_1.48.0  UCSC.utils_1.8.0    
+#> [67] tibble_3.3.1         pillar_1.11.1        rappdirs_0.3.4      
+#> [70] htmltools_0.5.9      R6_2.6.1             dbplyr_2.5.2        
+#> [73] httr2_1.2.2          textshaping_1.0.5    evaluate_1.0.5      
+#> [76] lattice_0.22-9       png_0.1-9            memoise_2.0.1       
+#> [79] bslib_0.11.0         SparseArray_1.12.2   xfun_0.58           
+#> [82] fs_2.1.0             pkgconfig_2.0.3
 ```
 
 </div>

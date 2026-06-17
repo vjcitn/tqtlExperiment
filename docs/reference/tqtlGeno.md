@@ -70,7 +70,7 @@ tqe <- tQTLExperiment(
 #> Extracting number of samples and rownames from chr22-n100.fam...
 #> Extracting number of variants and colnames from chr22-n100.bim...
 tqtlGeno(tqe)
-#> BEDMatrix: 100 x 69638 [/private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpotkzK9/temp_libpath10c16232f7b5e/tQTLExperiment/extdata/chr22-n100.bed]
+#> BEDMatrix: 100 x 69638 [/private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpuS4nx1/temp_libpath5a4b140770e5/tQTLExperiment/extdata/chr22-n100.bed]
 ```
 
 </div>
