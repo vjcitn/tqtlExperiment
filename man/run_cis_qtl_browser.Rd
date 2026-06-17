@@ -70,8 +70,9 @@ if (interactive()) {
       phenoFile   = pheno_file,
       genome      = "hg38"
   )
+  tqe <- addGeneSymbols(tqe)
 
-  res <- readTQTL(demodir, mode = "cis_nominal")
+  res <- readTQTL(demodir, mode = "cis_nominal", x = tqe)
 
   # Launch browser with p-value filter
   run_cis_qtl_browser(tqe, res$pairs, pval_thresh = 0.05)
