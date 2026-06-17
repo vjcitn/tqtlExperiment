@@ -1,6 +1,6 @@
 Package: tQTLExperiment
 Title: SummarizedExperiment Interface for the tensorQTL eQTL Mapping Tool
-Version: 0.1.17
+Version: 0.1.18
 Authors@R: c(
     person("Vincent", "Carey", email = "stvjc@channing.harvard.edu",
            role = c("aut", "cre")),
@@ -53,3 +53,5 @@ SystemRequirements: Python (>= 3.8) with tensorqtl installed
 Config/roxygen2/version: 8.0.0
 URL: https://github.com/vjcitn/tQTLExperiment
 BugReports: https://github.com/vjcitn/tQTLExperiment/issues
+Remotes:
+	vjcitn/CSHLvc2026

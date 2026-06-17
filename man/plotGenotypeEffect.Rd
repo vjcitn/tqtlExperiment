@@ -39,6 +39,7 @@ Creates a beeswarm plot comparing a phenotype across genotype groups
 visualizing the effect of a significant eQTL variant.
 }
 \examples{
+if (!requireNamespace("CSHLvc2026")) BiocManager::install("vjcitn/CSHLvc2026")
 data(mageSEfilt, package="CSHLvc2026")
 plink_paths <- cache_mage_chr17_plink()
 plpre <- tools::file_path_sans_ext(plink_paths[["bed"]])

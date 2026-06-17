@@ -61,16 +61,13 @@ This vignette uses data from the
 eQTL resource.  The `CSHLvc2026` companion package provides cached access to
 chromosome 17 genotypes and a pre-filtered pseudobulk B-cell SummarizedExperiment.
 
-```{r loaddata, eval=FALSE}
+```{r loaddata,message=FALSE}
 library(tQTLExperiment)
+if (!requireNamespace("CSHLvc2026")) BiocManager::install("vjcitn/CSHLvc2026")
 library(CSHLvc2026)
 
 data(mageSEfilt, package = "CSHLvc2026")
 mageSEfilt
-```
-
-```{r echo=FALSE, message=FALSE}
-library(tQTLExperiment)
 ```
 
 The genotype data live in PLINK format on OSN cloud storage and are downloaded

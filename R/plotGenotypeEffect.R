@@ -16,21 +16,23 @@
 #' @return A ggplot2 plot object.
 #'
 #' @import rlang
-#' @export
 #'
 #' @examples
-#' # Load pre-computed tensorQTL results from demo data
-#' demodir <- system.file("demodir", package = "tQTLExperiment")
-#' res <- readTQTL(demodir, mode = "cis_nominal")
-#'
-#' # plotGenotypeEffect requires the original tQTLExperiment with genotypes
-#' # to visualize the phenotype distribution by SNP genotype. This example
-#' # demonstrates the function signature using demo results:
-#' if (requireNamespace("ggplot2", quietly = TRUE) &&
-#'     requireNamespace("ggbeeswarm", quietly = TRUE)) {
-#'   message("plotGenotypeEffect(tqe, snp_id, phenotype_id) creates a",
-#'           " beeswarm plot grouped by SNP genotype")
-#' }
+#' if (!requireNamespace("CSHLvc2026")) BiocManager::install("vjcitn/CSHLvc2026")
+#' data(mageSEfilt, package="CSHLvc2026")
+#' plink_paths <- cache_mage_chr17_plink()
+#' plpre <- tools::file_path_sans_ext(plink_paths[["bed"]])
+#' cd <- as.data.frame(colData(mageSEfilt))
+#' mm <- model.matrix(~ batch + population + sex, data = cd)
+#' mm <- mm[, -1, drop = FALSE]   # remove (Intercept)
+#' tqe <- tQTLExperimentFromRSE(
+#'     se              = mageSEfilt,
+#'     plinkPrefix     = plpre,
+#'     covariateMatrix = mm,
+#'     genome          = "hg38"
+#' )
+#' plotGenotypeEffect(tqe, "17:410391:T:C", "ENSG00000187624.9")
+#' @export
 plotGenotypeEffect <- function(x, snp_id, phenotype_id,
                                assayName = NULL,
                                size = 2,
