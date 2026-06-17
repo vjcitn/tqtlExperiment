@@ -19,12 +19,18 @@
 #' @export
 #'
 #' @examples
-#' # Load demo tensorQTL results on chr17 (50 genes, pre-computed)
+#' # Load pre-computed tensorQTL results from demo data
 #' demodir <- system.file("demodir", package = "tQTLExperiment")
 #' res <- readTQTL(demodir, mode = "cis_nominal")
 #'
-#' # Show first few associations
-#' head(res$pairs, 3)
+#' # plotGenotypeEffect requires the original tQTLExperiment with genotypes
+#' # to visualize the phenotype distribution by SNP genotype. This example
+#' # demonstrates the function signature using demo results:
+#' if (requireNamespace("ggplot2", quietly = TRUE) &&
+#'     requireNamespace("ggbeeswarm", quietly = TRUE)) {
+#'   message("plotGenotypeEffect(tqe, snp_id, phenotype_id) creates a",
+#'           " beeswarm plot grouped by SNP genotype")
+#' }
 plotGenotypeEffect <- function(x, snp_id, phenotype_id,
                                assayName = NULL,
                                size = 2,
@@ -38,11 +44,13 @@ plotGenotypeEffect <- function(x, snp_id, phenotype_id,
     if (is.null(assayName))
         assayName <- SummarizedExperiment::assayNames(x)[1L]
 
-    # Get variant row
-    var_gr <- SummarizedExperiment::rowRanges(x, use.names = TRUE)
-    if (!snp_id %in% names(var_gr))
+    # Get variant row (search by snp_id metadata)
+    var_gr <- tqtlVariantRanges(x)
+    if (!("snp_id" %in% names(S4Vectors::mcols(var_gr))))
+        stop("variantRanges missing snp_id metadata")
+    var_idx <- which(S4Vectors::mcols(var_gr)[["snp_id"]] == snp_id)
+    if (length(var_idx) == 0L)
         stop("SNP not found: ", snp_id)
-    var_idx <- which(names(var_gr) == snp_id)
 
     # Get phenotype row
     row_gr <- SummarizedExperiment::rowRanges(x, use.names = TRUE)
