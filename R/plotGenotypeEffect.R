@@ -16,6 +16,7 @@
 #' @return A ggplot2 plot object.
 #'
 #' @import rlang
+#' @import ggplot2 ggbeeswarm
 #'
 #' @examples
 #' if (!requireNamespace("CSHLvc2026")) BiocManager::install("vjcitn/CSHLvc2026")
@@ -38,10 +39,6 @@ plotGenotypeEffect <- function(x, snp_id, phenotype_id,
                                size = 2,
                                color = "steelblue",
                                title = NULL) {
-    if (!requireNamespace("ggplot2", quietly = TRUE))
-        stop("Package 'ggplot2' is required: install.packages('ggplot2')")
-    if (!requireNamespace("ggbeeswarm", quietly = TRUE))
-        stop("Package 'ggbeeswarm' is required: install.packages('ggbeeswarm')")
 
     if (is.null(assayName))
         assayName <- SummarizedExperiment::assayNames(x)[1L]
