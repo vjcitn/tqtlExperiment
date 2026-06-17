@@ -58,19 +58,22 @@ a cis-SNP for that gene, then click "Plot" to visualize.
 }
 \examples{
 if (interactive()) {
-  # Build example tQTLExperiment
-  exdir <- system.file("extdata", package = "tQTLExperiment")
+  # Load MAGE chr17 genotypes and pre-computed tensorQTL results
+  plink_paths <- cache_mage_chr17_plink(verbose = FALSE)
+  plpre <- tools::file_path_sans_ext(plink_paths[["bed"]])
+
+  demodir <- system.file("demodir", package = "tQTLExperiment")
+  pheno_file <- file.path(demodir, "pheno.bed")
+
   tqe <- tQTLExperiment(
-      plinkPrefix = file.path(exdir, "chr22-n100"),
-      phenoFile   = file.path(exdir, "mean-pheno-n100.bed"),
+      plinkPrefix = plpre,
+      phenoFile   = pheno_file,
       genome      = "hg38"
   )
 
-  # Load demo results
-  demodir <- system.file("demodir", package = "tQTLExperiment")
   res <- readTQTL(demodir, mode = "cis_nominal")
 
-  # Launch browser
-  app <- run_cis_qtl_browser(tqe, res$pairs, pval_thresh = 0.05)
+  # Launch browser with p-value filter
+  run_cis_qtl_browser(tqe, res$pairs, pval_thresh = 0.05)
 }
 }
