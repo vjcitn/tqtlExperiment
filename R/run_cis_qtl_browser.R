@@ -174,7 +174,7 @@ run_cis_qtl_browser <- function(tqe, cis_gr,
       )
     })
 
-    output$reg_summary <- renderText({
+    output$reg_summary <- renderPrint({
       p <- plot_params()
       req(p$gene, p$snp)
 
@@ -214,8 +214,8 @@ run_cis_qtl_browser <- function(tqe, cis_gr,
       # Fit linear model
       mod <- lm(phenotype ~ ., data = reg_data)
 
-      # Return summary
-      capture.output(summary(mod))
+      # Print summary
+      summary(mod)
     })
 
     output$cis_table <- renderDataTable({
