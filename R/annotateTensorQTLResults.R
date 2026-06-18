@@ -20,7 +20,8 @@
 #' @export
 #'
 #' @examples
-#' demodir <- system.file("demodir", package = "tQTLExperiment")
+#' demo_data <- cache_demo_data()
+#' demodir = dirname(demo_data[["parquet"]])
 #' res <- readTQTL(demodir, mode = "cis_nominal")
 #' res_anno <- annotateTensorQTLResults(res$pairs)
 #' head(mcols(res_anno)[, c("phenotype_id", "gene_symbol", "gene_biotype")])

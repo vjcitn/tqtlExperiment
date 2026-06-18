@@ -126,7 +126,8 @@ prepareTQTL <- function(x, outDir,
 #'
 #' @examples
 #' # Load pre-computed tensorQTL results from demo data
-#' demodir <- system.file("demodir", package = "tQTLExperiment")
+#' demo_data <- cache_demo_data()
+#' demodir = dirname(demo_data[["parquet"]])
 #' res <- readTQTL(demodir, mode = "cis_nominal")
 #' head(res$pairs)
 #'
