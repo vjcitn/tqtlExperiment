@@ -61,20 +61,23 @@ if (interactive()) {
   # Load MAGE chr17 genotypes and pre-computed tensorQTL results
   plink_paths <- cache_mage_chr17_plink(verbose = FALSE)
   plpre <- tools::file_path_sans_ext(plink_paths[["bed"]])
-
-  demodir <- system.file("demodir", package = "tQTLExperiment")
-  pheno_file <- file.path(demodir, "pheno.bed")
-
-  tqe <- tQTLExperiment(
-      plinkPrefix = plpre,
-      phenoFile   = pheno_file,
-      genome      = "hg38"
-  )
+  data(mageSEfilt, package="CSHLvc2026")
+  cd <- as.data.frame(colData(mageSEfilt))
+  mm <- model.matrix(~ batch + population + sex, data = cd)
+  mm <- mm[, -1, drop = FALSE]   # remove (Intercept)
+  tqe <- tQTLExperimentFromRSE(
+   se              = mageSEfilt,
+   plinkPrefix     = plpre,
+   covariateMatrix = mm,
+   genome          = "hg38"
+   )
   tqe <- addGeneSymbols(tqe)
 
-  res <- readTQTL(demodir, mode = "cis_nominal", x = tqe)
+  res <- readTQTL(system.file("demodir", package="tQTLExperiment"), mode = "cis_nominal", x = tqe)
+  newpairs = res$pairs
+  newpairs = annotateTensorQTLResults(newpairs)
 
   # Launch browser with p-value filter
-  run_cis_qtl_browser(tqe, res$pairs, pval_thresh = 0.05)
+  run_cis_qtl_browser(tqe, newpairs, pval_thresh = 0.05)
 }
 }
