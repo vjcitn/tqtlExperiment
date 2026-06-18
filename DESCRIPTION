@@ -21,7 +21,8 @@ biocViews: GeneExpression, SNP, GenomeWideAssociation, Sequencing,
 Depends:
     R (>= 4.3.0),
     SummarizedExperiment,
-    GenomicRanges
+    GenomicRanges,
+    arrow
 Imports:
     methods,
     utils,
