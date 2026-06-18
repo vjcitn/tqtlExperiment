@@ -120,6 +120,11 @@ run_cis_qtl_browser <- function(tqe, cis_gr,
             plotOutput("geno_plot", height = "500px")
           ),
           tabPanel(
+            "Regression model",
+            br(),
+            verbatimTextOutput("reg_summary")
+          ),
+          tabPanel(
             "cis associations",
             br(),
             dataTableOutput("cis_table")
@@ -167,6 +172,50 @@ run_cis_qtl_browser <- function(tqe, cis_gr,
         snp_id       = p$snp,
         phenotype_id = pid
       )
+    })
+
+    output$reg_summary <- renderText({
+      p <- plot_params()
+      req(p$gene, p$snp)
+
+      pid <- cis_df[[phenotype_col]][
+        !is.na(cis_df[[gene_col]]) &
+        cis_df[[gene_col]] == p$gene &
+        cis_df[[snp_col]]  == p$snp
+      ][1]
+
+      req(!is.na(pid))
+
+      # Get assay index for phenotype
+      row_gr <- SummarizedExperiment::rowRanges(tqe, use.names = TRUE)
+      pheno_idx <- which(names(row_gr) == pid)
+
+      # Get variant index for SNP
+      var_gr <- tqtlVariantRanges(tqe)
+      var_idx <- which(S4Vectors::mcols(var_gr)[["snp_id"]] == p$snp)
+
+      # Extract phenotype, genotype, and covariates
+      assay_name <- SummarizedExperiment::assayNames(tqe)[1L]
+      pheno <- as.numeric(SummarizedExperiment::assay(tqe, assay_name)[pheno_idx, ])
+      geno <- as.integer(tqtlGeno(tqe)[, var_idx])
+
+      cov_cols <- setdiff(colnames(SummarizedExperiment::colData(tqe)), "fam_index")
+      cov_data <- as.data.frame(SummarizedExperiment::colData(tqe))[, cov_cols,
+                                                                     drop = FALSE]
+
+      # Build regression data frame
+      reg_data <- data.frame(
+        phenotype = pheno,
+        genotype  = geno,
+        cov_data,
+        stringsAsFactors = FALSE
+      )
+
+      # Fit linear model
+      mod <- lm(phenotype ~ ., data = reg_data)
+
+      # Return summary
+      capture.output(summary(mod))
     })
 
     output$cis_table <- renderDataTable({
