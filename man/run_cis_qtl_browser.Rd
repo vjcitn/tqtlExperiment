@@ -63,7 +63,7 @@ if (interactive()) {
   plpre <- tools::file_path_sans_ext(plink_paths[["bed"]])
   data(mageSEfilt, package="CSHLvc2026")
   cd <- as.data.frame(colData(mageSEfilt))
-  mm <- model.matrix(~ batch + population + sex, data = cd)
+  mm <- model.matrix(~ factor(batch) + population + sex, data = cd)
   mm <- mm[, -1, drop = FALSE]   # remove (Intercept)
   tqe <- tQTLExperimentFromRSE(
    se              = mageSEfilt,
@@ -72,8 +72,8 @@ if (interactive()) {
    genome          = "hg38"
    )
   tqe <- addGeneSymbols(tqe)
-
-  res <- readTQTL(system.file("demodir", package="tQTLExperiment"), mode = "cis_nominal", x = tqe)
+  demd = cache_demo_data()
+  res <- readTQTL(dirname(demd$parquet), mode = "cis_nominal", x = tqe)
   newpairs = res$pairs
   newpairs = annotateTensorQTLResults(newpairs)
 
