@@ -67,7 +67,7 @@ run_cis_qtl_browser <- function(tqe, cis_gr,
                                 pval_col      = "pval_nominal",
                                 pval_thresh   = NULL) {
 
-  cis_df <- as.data.frame(S4Vectors::mcols(cis_gr))
+  cis_df <- as.data.frame(S4Vectors::mcols(cis_gr)) |> dplyr::arrange(pval_nominal) # persistent
 
   # optional nominal p-value filter
   if (!is.null(pval_thresh) && pval_col %in% names(cis_df)) {
@@ -85,7 +85,7 @@ run_cis_qtl_browser <- function(tqe, cis_gr,
 
   get_cis_table <- function(gene) {
     rows <- !is.na(cis_df[[gene_col]]) & cis_df[[gene_col]] == gene
-    cis_df[rows, , drop = FALSE]
+    cis_df[rows, , drop = FALSE] |> dplyr::arrange(pval_nominal)
   }
 
   # ── UI ──────────────────────────────────────────────────────────────────
