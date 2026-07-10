@@ -78,4 +78,6 @@ Collate:
 	runTQTL.R
 	show.R
 	subset.R
+  	get_cached_mage17SE.R
+	qtlRegressionStats.R
 
