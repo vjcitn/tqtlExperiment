@@ -9,10 +9,18 @@
 #' @param pairs A data frame with columns \code{phenotype_id} and
 #'   \code{variant_id} identifying the SNP-gene pairs to analyse.
 #' @param assayName Name of the assay to use. Defaults to the first assay.
+#' @param wideFormat Logical. If \code{TRUE} (default), pivot to one row per
+#'   pair with two columns per model term: \code{estimate.<term>} and
+#'   \code{std.error.<term>} (e.g. \code{estimate.genotype},
+#'   \code{std.error.genotype}), suitable for multivariate analysis. If
+#'   \code{FALSE}, return the long tidy form with one row per pair × term
+#'   including \code{statistic} and \code{p.value} as well.
 #'
-#' @return A data frame with one row per (pair × model term) and columns
-#'   \code{phenotype_id}, \code{variant_id}, \code{term}, \code{estimate},
-#'   \code{std.error}, \code{statistic}, \code{p.value}.
+#' @return A data frame. In wide format (default): one row per pair, two
+#'   columns per model term (\code{estimate.<term>} and
+#'   \code{std.error.<term>}). In long format: one row per pair × model term
+#'   with columns \code{phenotype_id}, \code{variant_id}, \code{term},
+#'   \code{estimate}, \code{std.error}, \code{statistic}, \code{p.value}.
 #'
 #' @examples
 #' exdir <- system.file("extdata", package = "tQTLExperiment")
@@ -27,8 +35,9 @@
 #'     variant_id   = S4Vectors::mcols(tqtlVariantRanges(tqe))[["snp_id"]][1]
 #' )
 #' qtlRegressionStats(tqe, pairs)
+#' qtlRegressionStats(tqe, pairs, wideFormat = FALSE)
 #' @export
-qtlRegressionStats <- function(tqe, pairs, assayName = NULL) {
+qtlRegressionStats <- function(tqe, pairs, assayName = NULL, wideFormat = TRUE) {
     stopifnot(is.data.frame(pairs))
     if (!all(c("phenotype_id", "variant_id") %in% colnames(pairs)))
         stop("'pairs' must have columns 'phenotype_id' and 'variant_id'")
@@ -88,5 +97,20 @@ qtlRegressionStats <- function(tqe, pairs, assayName = NULL) {
         )
     }
 
-    do.call(rbind, results)
+    long <- do.call(rbind, results)
+
+    if (!wideFormat)
+        return(long)
+
+    # Sanitise term names so they make valid column name components
+    long$term <- gsub("[^A-Za-z0-9_]", "_", long$term)
+
+    wide <- reshape(long,
+                    idvar     = c("phenotype_id", "variant_id"),
+                    timevar   = "term",
+                    v.names   = c("estimate", "std.error"),
+                    direction = "wide",
+                    drop      = c("statistic", "p.value"))
+    rownames(wide) <- NULL
+    wide
 }
