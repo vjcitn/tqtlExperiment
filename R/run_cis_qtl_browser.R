@@ -31,7 +31,7 @@
 #' Navigation is via dropdown menus: select a gene symbol (searchable), then
 #' a cis-SNP for that gene, then click "Plot" to visualize.
 #'
-#' @import shiny
+#' @rawNamespace import(shiny, except=c(dataTableOutput, renderDataTable))
 #' @importFrom bslib bs_theme
 #' @importFrom DT dataTableOutput renderDataTable datatable
 #' @export

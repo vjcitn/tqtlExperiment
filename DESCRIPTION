@@ -1,6 +1,6 @@
 Package: tQTLExperiment
 Title: SummarizedExperiment Interface for the tensorQTL eQTL Mapping Tool
-Version: 0.1.28
+Version: 0.1.29
 Authors@R: c(
     person("Vincent", "Carey", email = "stvjc@channing.harvard.edu",
            role = c("aut", "cre")),
@@ -9,8 +9,8 @@ Authors@R: c(
 Description: Provides a SummarizedExperiment-derived container,
     tQTLExperiment, for managing phenotype, covariate, and genotype data
     for use with the tensorQTL GPU-accelerated eQTL mapping tool. Genotype
-    data is represented lazily via BEDMatrix. A runTQTL() method handles
-    file I/O and invokes the tensorQTL CLI (python -m tensorqtl), returning
+    data is represented lazily via BEDMatrix. prepareTQTL handles
+    file I/O and produces a command that will invoke tensorQTL CLI (python -m tensorqtl), returning
     results as GRanges objects. On Apple Silicon, the MPS (Metal Performance
     Shaders) backend is used automatically when available.
 License: Artistic-2.0
@@ -63,3 +63,19 @@ URL: https://github.com/vjcitn/tQTLExperiment
 BugReports: https://github.com/vjcitn/tQTLExperiment/issues
 Remotes:
 	vjcitn/CSHLvc2026
+Collate:
+	tQTLExperiment-class.R
+	tQTLExperiment-constructor.R
+	accessors.R
+	addGeneSymbols.R
+	annotateTensorQTLResults.R
+	cache_demo_data.R
+	cache_mage_chr17_cis.R
+	cache_mage_chr17_plink.R
+	findTQTL.R
+	plotGenotypeEffect.R
+	run_cis_qtl_browser.R
+	runTQTL.R
+	show.R
+	subset.R
+

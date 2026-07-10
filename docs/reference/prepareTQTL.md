@@ -122,11 +122,11 @@ tqe <- tQTLExperiment(
 cmd <- prepareTQTL(tqe, outDir = tempdir(), mode = "cis_nominal")
 #> Run the following command in a terminal with tensorqtl available:
 #> 
-#> python3 -m tensorqtl /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpZyaoNi/temp_libpatha318583333e0/tQTLExperiment/extdata/chr22-n100 /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//Rtmphg7Wmk/pheno.bed /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//Rtmphg7Wmk/tqtl_out --mode cis_nominal --maf_threshold 0.05 --window 1000000 -o /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//Rtmphg7Wmk
+#> python3 -m tensorqtl /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpTfmPqm/temp_libpathdad43b8ba3a7/tQTLExperiment/extdata/chr22-n100 /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//Rtmp110Khc/pheno.bed /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//Rtmp110Khc/tqtl_out --mode cis_nominal --maf_threshold 0.05 --window 1000000 -o /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//Rtmp110Khc
 #> 
-#> Then call readTQTL('/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//Rtmphg7Wmk', mode = 'cis_nominal') to load results into R.
+#> Then call readTQTL('/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//Rtmp110Khc', mode = 'cis_nominal') to load results into R.
 cat(cmd, "\n")
-#> python3 -m tensorqtl /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpZyaoNi/temp_libpatha318583333e0/tQTLExperiment/extdata/chr22-n100 /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//Rtmphg7Wmk/pheno.bed /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//Rtmphg7Wmk/tqtl_out --mode cis_nominal --maf_threshold 0.05 --window 1000000 -o /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//Rtmphg7Wmk 
+#> python3 -m tensorqtl /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpTfmPqm/temp_libpathdad43b8ba3a7/tQTLExperiment/extdata/chr22-n100 /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//Rtmp110Khc/pheno.bed /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//Rtmp110Khc/tqtl_out --mode cis_nominal --maf_threshold 0.05 --window 1000000 -o /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//Rtmp110Khc 
 ```
 
 </div>

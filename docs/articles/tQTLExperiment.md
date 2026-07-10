@@ -72,10 +72,6 @@ pseudobulk B-cell SummarizedExperiment.
 ``` r
 library(tQTLExperiment)
 #> Warning: package 'BiocGenerics' was built under R version 4.6.1
-#> Warning: replacing previous import 'shiny::dataTableOutput' by
-#> 'DT::dataTableOutput' when loading 'tQTLExperiment'
-#> Warning: replacing previous import 'shiny::renderDataTable' by
-#> 'DT::renderDataTable' when loading 'tQTLExperiment'
 if (!requireNamespace("CSHLvc2026")) BiocManager::install("vjcitn/CSHLvc2026")
 library(CSHLvc2026)
 
@@ -327,7 +323,7 @@ tqe_ex
 #> rowRanges: GRanges with 20 features
 #> colData( 0 ) covariates:   
 #> geno: 100 samples x 69638 variants [BEDMatrix - lazy]
-#> plinkPrefix: /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpZyaoNi/temp_libpatha318583333e0/tQTLExperiment/extdata/chr22-n100 
+#> plinkPrefix: /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpTfmPqm/temp_libpathdad43b8ba3a7/tQTLExperiment/extdata/chr22-n100 
 #> use prepareTQTL() to write inputs and get CLI command
 ```
 
@@ -495,7 +491,7 @@ sessionInfo()
 #> [8] base     
 #> 
 #> other attached packages:
-#>  [1] CSHLvc2026_0.98.8           tQTLExperiment_0.1.28      
+#>  [1] CSHLvc2026_0.98.8           tQTLExperiment_0.1.29      
 #>  [3] arrow_24.0.0                SummarizedExperiment_1.43.0
 #>  [5] Biobase_2.73.1              GenomicRanges_1.65.0       
 #>  [7] Seqinfo_1.3.0               IRanges_2.47.2             
