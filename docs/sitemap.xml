@@ -5,6 +5,9 @@
 <url><loc>https://github.com/vjcitn/tQTLExperiment/authors.html</loc></url>
 <url><loc>https://github.com/vjcitn/tQTLExperiment/index.html</loc></url>
 <url><loc>https://github.com/vjcitn/tQTLExperiment/reference/addGeneSymbols.html</loc></url>
+<url><loc>https://github.com/vjcitn/tQTLExperiment/reference/annotateTensorQTLResults.html</loc></url>
+<url><loc>https://github.com/vjcitn/tQTLExperiment/reference/cache_demo_data.html</loc></url>
+<url><loc>https://github.com/vjcitn/tQTLExperiment/reference/cache_mage_chr17_cis.html</loc></url>
 <url><loc>https://github.com/vjcitn/tQTLExperiment/reference/cache_mage_chr17_plink.html</loc></url>
 <url><loc>https://github.com/vjcitn/tQTLExperiment/reference/dot-validate_bed_magic.html</loc></url>
 <url><loc>https://github.com/vjcitn/tQTLExperiment/reference/findTQTL.html</loc></url>
@@ -12,6 +15,7 @@
 <url><loc>https://github.com/vjcitn/tQTLExperiment/reference/plotGenotypeEffect.html</loc></url>
 <url><loc>https://github.com/vjcitn/tQTLExperiment/reference/prepareTQTL.html</loc></url>
 <url><loc>https://github.com/vjcitn/tQTLExperiment/reference/readTQTL.html</loc></url>
+<url><loc>https://github.com/vjcitn/tQTLExperiment/reference/run_cis_qtl_browser.html</loc></url>
 <url><loc>https://github.com/vjcitn/tQTLExperiment/reference/show-tQTLExperiment-method.html</loc></url>
 <url><loc>https://github.com/vjcitn/tQTLExperiment/reference/sub-tQTLExperiment-ANY-ANY-ANY-method.html</loc></url>
 <url><loc>https://github.com/vjcitn/tQTLExperiment/reference/tQTLExperiment-class.html</loc></url>

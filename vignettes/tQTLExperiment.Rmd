@@ -221,11 +221,12 @@ tqe_ex
 Pre-computed tensorQTL `cis_nominal` results that demonstrate the full workflow:
 
 ```{r demo_load}
-demodir <- system.file("demodir", package = "tQTLExperiment")
+cc = cache_demo_data()
+demodir = dirname(cc$log)
 
 # Load results: 71k+ feature-variant pairs on chr17
 res <- readTQTL(demodir, mode = "cis_nominal")
-res$pairs
+res$pairs |> head()
 ```
 
 Top associations by nominal p-value:

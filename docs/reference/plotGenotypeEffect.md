@@ -82,6 +82,8 @@ A ggplot2 plot object.
 <div class="sourceCode">
 
 ``` r
+if (!requireNamespace("CSHLvc2026")) BiocManager::install("vjcitn/CSHLvc2026")
+#> Loading required namespace: CSHLvc2026
 data(mageSEfilt, package="CSHLvc2026")
 plink_paths <- cache_mage_chr17_plink()
 #> [ cache hit   ] CCDG_mage_chr17.fam
