@@ -69,7 +69,7 @@ qtlRegressionStats <- function(tqe, pairs, assayName = NULL, wideFormat = TRUE) 
         var_idx   <- match(vid, var_names)
 
         if (is.na(pheno_idx) || is.na(var_idx)) {
-            warning("pair not found — skipped: ", pid, " / ", vid)
+            warning("pair not found - skipped: ", pid, " / ", vid)
             next
         }
 
