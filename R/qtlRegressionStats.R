@@ -13,12 +13,12 @@
 #'   pair with two columns per model term: \code{estimate.<term>} and
 #'   \code{std.error.<term>} (e.g. \code{estimate.genotype},
 #'   \code{std.error.genotype}), suitable for multivariate analysis. If
-#'   \code{FALSE}, return the long tidy form with one row per pair × term
+#'   \code{FALSE}, return the long tidy form with one row per pair x term
 #'   including \code{statistic} and \code{p.value} as well.
 #'
 #' @return A data frame. In wide format (default): one row per pair, two
 #'   columns per model term (\code{estimate.<term>} and
-#'   \code{std.error.<term>}). In long format: one row per pair × model term
+#'   \code{std.error.<term>}). In long format: one row per pair x model term
 #'   with columns \code{phenotype_id}, \code{variant_id}, \code{term},
 #'   \code{estimate}, \code{std.error}, \code{statistic}, \code{p.value}.
 #'
@@ -36,6 +36,7 @@
 #' )
 #' qtlRegressionStats(tqe, pairs)
 #' qtlRegressionStats(tqe, pairs, wideFormat = FALSE)
+#' @importFrom stats lm reshape
 #' @export
 qtlRegressionStats <- function(tqe, pairs, assayName = NULL, wideFormat = TRUE) {
     stopifnot(is.data.frame(pairs))
