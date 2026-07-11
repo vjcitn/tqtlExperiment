@@ -1,4 +1,5 @@
 #' Interactive cis-QTL browser
+#' @importFrom dplyr arrange
 #'
 #' Launches a Shiny application for exploring cis-QTL associations.
 #' Users can select genes, view associated SNPs, and visualize the genotype
@@ -88,7 +89,7 @@ run_cis_qtl_browser <- function(tqe, cis_gr,
     cis_df[rows, , drop = FALSE] |> dplyr::arrange(pval_nominal)
   }
 
-  # ── UI ──────────────────────────────────────────────────────────────────
+  # -- UI ------------------------------------------------------------------
   ui <- fluidPage(
     theme = bs_theme(bootswatch = "flatly"),
     titlePanel("cis-QTL Browser"),
@@ -101,7 +102,7 @@ run_cis_qtl_browser <- function(tqe, cis_gr,
           "Gene symbol",
           choices  = all_symbols,
           selected = all_symbols[1],
-          options  = list(placeholder = "Type to search…")
+          options  = list(placeholder = "Type to search...")
         ),
         selectInput(
           "snp",
@@ -134,7 +135,7 @@ run_cis_qtl_browser <- function(tqe, cis_gr,
     )
   )
 
-  # ── server ───────────────────────────────────────────────────────────────
+  # -- server --------------------------------------------------------------
   server <- function(input, output, session) {
 
     observeEvent(input$gene, {

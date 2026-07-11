@@ -1,6 +1,6 @@
 Package: tQTLExperiment
 Title: SummarizedExperiment Interface for the tensorQTL eQTL Mapping Tool
-Version: 0.1.35
+Version: 0.1.36
 Authors@R: c(
     person("Vincent", "Carey", email = "stvjc@channing.harvard.edu",
            role = c("aut", "cre")),
@@ -22,7 +22,6 @@ Depends:
     R (>= 4.3.0),
     SummarizedExperiment,
     GenomicRanges,
-    arrow
 Imports:
     methods,
     utils,
@@ -53,7 +52,8 @@ Suggests:
     BiocStyle,
     knitr,
     rmarkdown,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    BiocManager
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 SystemRequirements: Python (>= 3.8) with tensorqtl installed
