@@ -4,7 +4,13 @@
 \alias{qtlRegressionStats}
 \title{Linear regression statistics for a collection of SNP-gene pairs}
 \usage{
-qtlRegressionStats(tqe, pairs, assayName = NULL, wideFormat = TRUE)
+qtlRegressionStats(
+  tqe,
+  pairs,
+  assayName = NULL,
+  wideFormat = TRUE,
+  BPPARAM = BiocParallel::SerialParam()
+)
 }
 \arguments{
 \item{tqe}{A \link{tQTLExperiment} with genotype data.}
@@ -20,6 +26,10 @@ pair with two columns per model term: \code{estimate.<term>} and
 \code{std.error.genotype}), suitable for multivariate analysis. If
 \code{FALSE}, return the long tidy form with one row per pair x term
 including \code{statistic} and \code{p.value} as well.}
+
+\item{BPPARAM}{A \link[BiocParallel:BiocParallelParam]{BiocParallel::BiocParallelParam} object controlling
+parallelisation. Defaults to \code{\link[BiocParallel:SerialParam]{BiocParallel::SerialParam()}} (single
+core). Use e.g. \code{\link[BiocParallel:MulticoreParam]{BiocParallel::MulticoreParam()}} for multicore.}
 }
 \value{
 A data frame. In wide format (default): one row per pair, two
@@ -32,7 +42,8 @@ with columns \code{phenotype_id}, \code{variant_id}, \code{term},
 For each (phenotype_id, variant_id) pair, fits a linear model of phenotype
 on genotype plus all covariates stored in the \link{tQTLExperiment} and returns
 a tidy data frame of coefficients, standard errors, t-statistics, and
-p-values for every model term.
+p-values for every model term.  Pairs are grouped by phenotype and processed
+in parallel via \code{\link[BiocParallel:bplapply]{BiocParallel::bplapply()}}.
 }
 \examples{
 exdir <- system.file("extdata", package = "tQTLExperiment")

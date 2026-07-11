@@ -3,7 +3,8 @@
 #' For each (phenotype_id, variant_id) pair, fits a linear model of phenotype
 #' on genotype plus all covariates stored in the [tQTLExperiment] and returns
 #' a tidy data frame of coefficients, standard errors, t-statistics, and
-#' p-values for every model term.
+#' p-values for every model term.  Pairs are grouped by phenotype and processed
+#' in parallel via [BiocParallel::bplapply()].
 #'
 #' @param tqe A [tQTLExperiment] with genotype data.
 #' @param pairs A data frame with columns \code{phenotype_id} and
@@ -15,6 +16,9 @@
 #'   \code{std.error.genotype}), suitable for multivariate analysis. If
 #'   \code{FALSE}, return the long tidy form with one row per pair x term
 #'   including \code{statistic} and \code{p.value} as well.
+#' @param BPPARAM A [BiocParallel::BiocParallelParam] object controlling
+#'   parallelisation. Defaults to [BiocParallel::SerialParam()] (single
+#'   core). Use e.g. [BiocParallel::MulticoreParam()] for multicore.
 #'
 #' @return A data frame. In wide format (default): one row per pair, two
 #'   columns per model term (\code{estimate.<term>} and
@@ -37,8 +41,10 @@
 #' qtlRegressionStats(tqe, pairs)
 #' qtlRegressionStats(tqe, pairs, wideFormat = FALSE)
 #' @importFrom stats lm reshape
+#' @importFrom BiocParallel bplapply SerialParam
 #' @export
-qtlRegressionStats <- function(tqe, pairs, assayName = NULL, wideFormat = TRUE) {
+qtlRegressionStats <- function(tqe, pairs, assayName = NULL, wideFormat = TRUE,
+                               BPPARAM = BiocParallel::SerialParam()) {
     stopifnot(is.data.frame(pairs))
     if (!all(c("phenotype_id", "variant_id") %in% colnames(pairs)))
         stop("'pairs' must have columns 'phenotype_id' and 'variant_id'")
@@ -47,7 +53,7 @@ qtlRegressionStats <- function(tqe, pairs, assayName = NULL, wideFormat = TRUE) 
         assayName <- SummarizedExperiment::assayNames(tqe)[1L]
 
     # Build lookup tables once
-    row_gr     <- SummarizedExperiment::rowRanges(tqe, use.names = TRUE)
+    row_gr      <- SummarizedExperiment::rowRanges(tqe, use.names = TRUE)
     pheno_names <- names(row_gr)
 
     var_gr    <- tqtlVariantRanges(tqe)
@@ -59,51 +65,67 @@ qtlRegressionStats <- function(tqe, pairs, assayName = NULL, wideFormat = TRUE) 
     bed       <- tqtlGeno(tqe)
     assay_mat <- SummarizedExperiment::assay(tqe, assayName)
 
-    results <- vector("list", nrow(pairs))
+    # Group by phenotype so each phenotype vector is extracted only once
+    groups <- split(seq_len(nrow(pairs)), pairs$phenotype_id)
 
-    for (i in seq_len(nrow(pairs))) {
-        pid <- pairs$phenotype_id[i]
-        vid <- pairs$variant_id[i]
-
+    process_group <- function(idx) {
+        pid       <- pairs$phenotype_id[idx[1L]]
         pheno_idx <- match(pid, pheno_names)
-        var_idx   <- match(vid, var_names)
 
-        if (is.na(pheno_idx) || is.na(var_idx)) {
-            warning("pair not found - skipped: ", pid, " / ", vid)
-            next
+        if (is.na(pheno_idx)) {
+            warning("phenotype not found - skipped: ", pid)
+            return(NULL)
         }
 
         pheno <- as.numeric(assay_mat[pheno_idx, ])
-        geno  <- as.integer(bed[, var_idx])
 
-        reg_data <- data.frame(
-            phenotype = pheno,
-            genotype  = geno,
-            cov_data,
-            stringsAsFactors = FALSE
-        )
+        lapply(idx, function(i) {
+            vid     <- pairs$variant_id[i]
+            var_idx <- match(vid, var_names)
 
-        cf <- summary(lm(phenotype ~ ., data = reg_data))$coefficients
+            if (is.na(var_idx)) {
+                warning("variant not found - skipped: ", vid)
+                return(NULL)
+            }
 
-        results[[i]] <- data.frame(
-            phenotype_id = pid,
-            variant_id   = vid,
-            term         = rownames(cf),
-            estimate     = cf[, "Estimate"],
-            std.error    = cf[, "Std. Error"],
-            statistic    = cf[, "t value"],
-            p.value      = cf[, "Pr(>|t|)"],
-            row.names    = NULL,
-            stringsAsFactors = FALSE
-        )
+            geno <- as.integer(bed[, var_idx])
+
+            reg_data <- data.frame(
+                phenotype = pheno,
+                genotype  = geno,
+                cov_data,
+                stringsAsFactors = FALSE
+            )
+
+            cf <- summary(lm(phenotype ~ ., data = reg_data))$coefficients
+
+            data.frame(
+                phenotype_id = pid,
+                variant_id   = vid,
+                term         = rownames(cf),
+                estimate     = cf[, "Estimate"],
+                std.error    = cf[, "Std. Error"],
+                statistic    = cf[, "t value"],
+                p.value      = cf[, "Pr(>|t|)"],
+                row.names    = NULL,
+                stringsAsFactors = FALSE
+            )
+        })
     }
 
-    long <- do.call(rbind, results)
+    group_results <- BiocParallel::bplapply(groups, process_group,
+                                            BPPARAM = BPPARAM)
+
+    long <- do.call(rbind, unlist(group_results, recursive = FALSE))
+
+    # Restore original row order
+    long <- long[order(match(paste(long$phenotype_id, long$variant_id),
+                             paste(pairs$phenotype_id, pairs$variant_id))), ]
+    rownames(long) <- NULL
 
     if (!wideFormat)
         return(long)
 
-    # Sanitise term names so they make valid column name components
     long$term <- gsub("[^A-Za-z0-9_]", "_", long$term)
 
     wide <- reshape(long,
