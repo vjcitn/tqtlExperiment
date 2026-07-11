@@ -18,7 +18,10 @@
 #' @param window Cis-window in base pairs. Defaults to `1000000`.
 #' @param permutations Permutations for `"cis"` mode. Defaults to `1000`.
 #' @param python Path to the Python executable to embed in the returned
-#'   command string. Defaults to `"python3"`.
+#'   command string. Defaults to auto-detection: uses the Python inside the
+#'   active conda environment (\code{CONDA_PREFIX}) or virtualenv
+#'   (\code{VIRTUAL_ENV}) if set, otherwise the first \code{python3} on
+#'   \code{PATH}.
 #' @param ... Additional `--key value` flags passed to tensorQTL verbatim.
 #'
 #' @return A character string containing the complete shell command to run.
@@ -35,6 +38,20 @@
 #' cmd <- prepareTQTL(tqe, outDir = tempdir(), mode = "cis_nominal")
 #' cat(cmd, "\n")
 #'
+# Resolve the Python executable from the active conda/venv, falling back to
+# the first python3 on PATH.
+.detect_python <- function() {
+    conda <- Sys.getenv("CONDA_PREFIX")
+    venv  <- Sys.getenv("VIRTUAL_ENV")
+    if (nzchar(conda))
+        return(file.path(conda, "bin", "python3"))
+    if (nzchar(venv))
+        return(file.path(venv, "bin", "python3"))
+    py <- Sys.which("python3")
+    if (nzchar(py)) return(unname(py))
+    "python3"
+}
+
 #' @export
 prepareTQTL <- function(x, outDir,
                         mode      = c("cis_nominal", "cis",
@@ -43,7 +60,7 @@ prepareTQTL <- function(x, outDir,
                         mafThreshold = 0.05,
                         window       = 1000000L,
                         permutations = 1000L,
-                        python       = "python3",
+                        python       = .detect_python(),
                         ...) {
     mode <- match.arg(mode)
 
