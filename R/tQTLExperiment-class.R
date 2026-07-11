@@ -9,8 +9,7 @@
 #' @importFrom stats setNames model.matrix
 NULL
 
-#' tQTLExperiment: a SummarizedExperiment for tensorQTL eQTL mapping
-#'
+#' tQTLExperiment: a SummarizedExperiment for tensorQTL eQTL mapping.
 #' `tQTLExperiment` extends [SummarizedExperiment::RangedSummarizedExperiment]
 #' to hold all data needed for the tensorQTL eQTL mapping tool:
 #'

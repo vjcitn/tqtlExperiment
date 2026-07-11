@@ -2,7 +2,10 @@
 % Please edit documentation in R/run_cis_qtl_browser.R
 \name{run_cis_qtl_browser}
 \alias{run_cis_qtl_browser}
-\title{Interactive cis-QTL browser}
+\title{Interactive cis-QTL browser.
+Launches a Shiny application for exploring cis-QTL associations.
+Users can select genes, view associated SNPs, and visualize the genotype
+effect on phenotypes using \code{\link[=plotGenotypeEffect]{plotGenotypeEffect()}}.}
 \usage{
 run_cis_qtl_browser(
   tqe,
@@ -40,6 +43,7 @@ A Shiny application object (invisibly). Call this function in an
 interactive R session to launch the browser.
 }
 \description{
+Interactive cis-QTL browser.
 Launches a Shiny application for exploring cis-QTL associations.
 Users can select genes, view associated SNPs, and visualize the genotype
 effect on phenotypes using \code{\link[=plotGenotypeEffect]{plotGenotypeEffect()}}.

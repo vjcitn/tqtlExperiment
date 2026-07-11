@@ -1,10 +1,9 @@
-#' Interactive cis-QTL browser
-#' @importFrom dplyr arrange
-#'
+#' Interactive cis-QTL browser.
 #' Launches a Shiny application for exploring cis-QTL associations.
 #' Users can select genes, view associated SNPs, and visualize the genotype
 #' effect on phenotypes using [plotGenotypeEffect()].
 #'
+#' @importFrom dplyr arrange
 #' @param tqe A [tQTLExperiment] with genotype data.
 #' @param cis_gr A [GenomicRanges::GRanges] object containing cis-QTL results
 #'   (e.g., from [readTQTL()]).

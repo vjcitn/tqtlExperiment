@@ -3,12 +3,10 @@
 \docType{class}
 \name{tQTLExperiment-class}
 \alias{tQTLExperiment-class}
-\title{tQTLExperiment: a SummarizedExperiment for tensorQTL eQTL mapping}
-\description{
+\title{tQTLExperiment: a SummarizedExperiment for tensorQTL eQTL mapping.
 \code{tQTLExperiment} extends \link[SummarizedExperiment:RangedSummarizedExperiment]{SummarizedExperiment::RangedSummarizedExperiment}
-to hold all data needed for the tensorQTL eQTL mapping tool:
-}
-\details{
+to hold all data needed for the tensorQTL eQTL mapping tool:}
+\description{
 \itemize{
 \item \strong{assays}: phenotype matrix (features × samples)
 \item \strong{rowRanges}: genomic coordinates for each phenotype feature (gene)
@@ -19,7 +17,8 @@ to hold all data needed for the tensorQTL eQTL mapping tool:
 metadata columns \code{snp_id}, \code{ref}, \code{alt}
 \item \strong{plinkPrefix}: path prefix for the PLINK file set
 }
-
+}
+\details{
 tensorQTL is invoked via its CLI (\verb{python -m tensorqtl}) and supports
 GPU acceleration through CUDA or Apple MPS (Metal Performance Shaders)
 on Apple Silicon.

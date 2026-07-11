@@ -1,5 +1,18 @@
-#' Prepare input files and return the tensorQTL CLI command
-#'
+# Resolve the Python executable from the active conda/venv, falling back to
+# the first python3 on PATH.
+.detect_python <- function() {
+    conda <- Sys.getenv("CONDA_PREFIX")
+    venv  <- Sys.getenv("VIRTUAL_ENV")
+    if (nzchar(conda))
+        return(file.path(conda, "bin", "python3"))
+    if (nzchar(venv))
+        return(file.path(venv, "bin", "python3"))
+    py <- Sys.which("python3")
+    if (nzchar(py)) return(unname(py))
+    "python3"
+}
+
+#' Prepare input files and return the tensorQTL CLI command.
 #' Writes the phenotype BED file and (optionally) the covariate file to a
 #' user-specified directory, then returns the complete `python -m tensorqtl`
 #' command string.  The user runs this command in a terminal where their
@@ -38,20 +51,6 @@
 #' cmd <- prepareTQTL(tqe, outDir = tempdir(), mode = "cis_nominal")
 #' cat(cmd, "\n")
 #'
-# Resolve the Python executable from the active conda/venv, falling back to
-# the first python3 on PATH.
-.detect_python <- function() {
-    conda <- Sys.getenv("CONDA_PREFIX")
-    venv  <- Sys.getenv("VIRTUAL_ENV")
-    if (nzchar(conda))
-        return(file.path(conda, "bin", "python3"))
-    if (nzchar(venv))
-        return(file.path(venv, "bin", "python3"))
-    py <- Sys.which("python3")
-    if (nzchar(py)) return(unname(py))
-    "python3"
-}
-
 #' @export
 prepareTQTL <- function(x, outDir,
                         mode      = c("cis_nominal", "cis",
