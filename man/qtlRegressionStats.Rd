@@ -8,6 +8,7 @@ qtlRegressionStats(
   tqe,
   pairs,
   assayName = NULL,
+  t_only = TRUE,
   wideFormat = TRUE,
   BPPARAM = BiocParallel::SerialParam()
 )
@@ -20,23 +21,24 @@ qtlRegressionStats(
 
 \item{assayName}{Name of the assay to use. Defaults to the first assay.}
 
+\item{t_only}{Logical. If \code{TRUE} (default), return only the
+t-statistic (estimate / std.error) for each model term. In wide format
+columns are named \code{<term>.t}. If \code{FALSE}, return estimates and
+standard errors (and additionally statistic and p.value in long format).}
+
 \item{wideFormat}{Logical. If \code{TRUE} (default), pivot to one row per
-pair with two columns per model term: \code{estimate.<term>} and
-\code{std.error.<term>} (e.g. \code{estimate.genotype},
-\code{std.error.genotype}), suitable for multivariate analysis. If
-\code{FALSE}, return the long tidy form with one row per pair x term
-including \code{statistic} and \code{p.value} as well.}
+pair. With \code{t_only = TRUE}: one column per term named
+\code{<term>.t}. With \code{t_only = FALSE}: two columns per term,
+\code{estimate.<term>} and \code{std.error.<term>}. If \code{FALSE},
+return the long tidy form with one row per pair x term.}
 
 \item{BPPARAM}{A \link[BiocParallel:BiocParallelParam]{BiocParallel::BiocParallelParam} object controlling
 parallelisation. Defaults to \code{\link[BiocParallel:SerialParam]{BiocParallel::SerialParam()}} (single
 core). Use e.g. \code{\link[BiocParallel:MulticoreParam]{BiocParallel::MulticoreParam()}} for multicore.}
 }
 \value{
-A data frame. In wide format (default): one row per pair, two
-columns per model term (\code{estimate.<term>} and
-\code{std.error.<term>}). In long format: one row per pair x model term
-with columns \code{phenotype_id}, \code{variant_id}, \code{term},
-\code{estimate}, \code{std.error}, \code{statistic}, \code{p.value}.
+A data frame. See \code{t_only} and \code{wideFormat} for the
+shape of the output.
 }
 \description{
 For each (phenotype_id, variant_id) pair, fits a linear model of phenotype
@@ -58,5 +60,5 @@ pairs <- data.frame(
     variant_id   = S4Vectors::mcols(tqtlVariantRanges(tqe))[["snp_id"]][1]
 )
 qtlRegressionStats(tqe, pairs)
-qtlRegressionStats(tqe, pairs, wideFormat = FALSE)
+qtlRegressionStats(tqe, pairs, t_only = FALSE, wideFormat = FALSE)
 }
