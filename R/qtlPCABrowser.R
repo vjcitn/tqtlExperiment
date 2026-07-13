@@ -38,6 +38,10 @@ qtlPCABrowser <- function(res, tqe, assayName = NULL) {
     if (!requireNamespace("plotly", quietly = TRUE))
         stop("Package 'plotly' is required.")
 
+    # Resolve assayName eagerly so the promise is not re-evaluated inside Shiny
+    if (is.null(assayName))
+        assayName <- SummarizedExperiment::assayNames(tqe)[1L]
+
     # ---- PCA ---------------------------------------------------------------
     res_clean <- stats::na.omit(res)
     t_cols    <- setdiff(names(res_clean), c("phenotype_id", "variant_id"))
@@ -64,13 +68,17 @@ qtlPCABrowser <- function(res, tqe, assayName = NULL) {
         ),
         fluidRow(
             column(12,
-                   p(style = "color:grey; font-size:0.85em;",
-                     "Hover over a point to see the genotype effect plot."))
+                   verbatimTextOutput("hover_info"))
         )
     )
 
     # ---- Shiny server ------------------------------------------------------
     server <- function(input, output, session) {
+
+        output$hover_info <- renderPrint({
+            h <- plotly::event_data("plotly_hover")
+            if (is.null(h)) cat("(no hover yet)\n") else print(h)
+        })
 
         output$pca <- plotly::renderPlotly({
             plotly::plot_ly(
@@ -99,7 +107,13 @@ qtlPCABrowser <- function(res, tqe, assayName = NULL) {
                      cex = 1.2, col = "grey50")
                 return(invisible(NULL))
             }
-            vid <- hover$key
+            # key aesthetic is unreliable in some plotly versions;
+            # fall back to pointNumber (0-indexed) to index into scores.
+            vid <- if (!is.null(hover$key) && nzchar(hover$key))
+                hover$key
+            else
+                scores$variant_id[hover$pointNumber + 1L]
+
             tryCatch(
                 plotGenotypeEffect(tqe, snp_id = vid,
                                    phenotype_id = phenotype_id,
@@ -107,7 +121,7 @@ qtlPCABrowser <- function(res, tqe, assayName = NULL) {
                                    title        = vid),
                 error = function(e) {
                     plot(0, 0, type = "n", axes = FALSE, xlab = "", ylab = "")
-                    text(0, 0, paste("No plot:\n", e$message),
+                    text(0, 0, paste("snp:", vid, "\nerror:", e$message),
                          cex = 0.9, col = "grey50")
                 }
             )
