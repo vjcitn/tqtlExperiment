@@ -134,8 +134,12 @@ qtlRegressionStats <- function(tqe, pairs = NULL, symbol = NULL,
     bed       <- tqtlGeno(tqe)
     assay_mat <- SummarizedExperiment::assay(tqe, assayName)
 
-    # Group by phenotype so each phenotype vector is extracted only once
-    groups <- split(seq_len(nrow(pairs)), pairs$phenotype_id)
+    # Group by phenotype so each phenotype vector is extracted only once.
+    # When there is only one phenotype group (gene mode via symbol=), the
+    # outer bplapply over groups gives no parallelism, so we parallelise the
+    # inner variant loop instead.
+    groups      <- split(seq_len(nrow(pairs)), pairs$phenotype_id)
+    gene_mode   <- length(groups) == 1L
 
     process_group <- function(idx) {
         pid       <- pairs$phenotype_id[idx[1L]]
@@ -148,7 +152,7 @@ qtlRegressionStats <- function(tqe, pairs = NULL, symbol = NULL,
 
         pheno <- as.numeric(assay_mat[pheno_idx, ])
 
-        lapply(idx, function(i) {
+        fit_one <- function(i) {
             vid     <- pairs$variant_id[i]
             var_idx <- match(vid, var_names)
 
@@ -191,7 +195,14 @@ qtlRegressionStats <- function(tqe, pairs = NULL, symbol = NULL,
                     stringsAsFactors = FALSE
                 )
             }
-        })
+        }
+
+        # Gene mode: one phenotype, many variants -- parallelise over variants.
+        # Multi-gene mode: parallelise over phenotype groups (outer bplapply).
+        if (gene_mode)
+            BiocParallel::bplapply(idx, fit_one, BPPARAM = BPPARAM)
+        else
+            lapply(idx, fit_one)
     }
 
     group_results <- BiocParallel::bplapply(groups, process_group,
