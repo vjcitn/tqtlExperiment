@@ -35,3 +35,7 @@ message("elapsed: ", round((proc.time() - t0)[["elapsed"]], 1), " s")
 message("dim: ", paste(dim(res), collapse = " x "))
 message("columns: ", paste(names(res), collapse = ", "))
 print(head(res[, 1:6]))
+
+out <- "GSDMB_cis_tstat.rds"
+saveRDS(res, out)
+message("results saved to: ", normalizePath(out))
