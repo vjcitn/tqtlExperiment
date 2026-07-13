@@ -78,11 +78,11 @@ qtlRegressionStats <- function(tqe, pairs = NULL, symbol = NULL,
         hit <- hit[1L]
 
         pid      <- names(row_gr)[hit]
-        gene_chr <- as.character(GenomicRanges::seqnames(row_gr[hit]))
+        gene_chr <- sub("^chr", "", as.character(GenomicRanges::seqnames(row_gr[hit])))
         gene_pos <- GenomicRanges::start(row_gr[hit])
 
         var_gr    <- tqtlVariantRanges(tqe)
-        var_chr   <- as.character(GenomicRanges::seqnames(var_gr))
+        var_chr   <- sub("^chr", "", as.character(GenomicRanges::seqnames(var_gr)))
         var_pos   <- GenomicRanges::start(var_gr)
         in_window <- var_chr == gene_chr &
                      var_pos >= gene_pos - window &
