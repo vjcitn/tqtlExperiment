@@ -67,7 +67,7 @@ qtlRegressionStats <- function(tqe, pairs = NULL, symbol = NULL,
         row_gr   <- SummarizedExperiment::rowRanges(tqe, use.names = TRUE)
         gene_col <- S4Vectors::mcols(row_gr)[["gene_name"]]
         if (is.null(gene_col))
-            stop("'tqe' has no 'gene_name' column in rowRanges — ",
+            stop("'tqe' has no 'gene_name' column in rowRanges - ",
                  "run addGeneSymbols() first")
         hit <- which(gene_col == symbol)
         if (length(hit) == 0L)
