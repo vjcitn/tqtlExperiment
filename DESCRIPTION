@@ -1,6 +1,6 @@
 Package: tQTLExperiment
 Title: SummarizedExperiment Interface for the tensorQTL eQTL Mapping Tool
-Version: 0.1.44
+Version: 0.1.45
 Authors@R: c(
     person("Vincent", "Carey", email = "stvjc@channing.harvard.edu",
            role = c("aut", "cre")),
@@ -37,6 +37,7 @@ Imports:
     BEDMatrix,
     BiocParallel,
     dplyr,
+    plotly,
     ggplot2,
     ggbeeswarm,
     shiny,
