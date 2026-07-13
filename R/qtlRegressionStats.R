@@ -35,6 +35,22 @@
 #' @return A data frame. See \code{t_only} and \code{wideFormat} for the
 #'   shape of the output.
 #'
+#' @details
+#' **Chromosome naming discrepancy.**
+#' The \code{rowRanges} of a \code{tQTLExperiment} built from a
+#' \code{SummarizedExperiment} typically carries UCSC-style seqnames
+#' (e.g. \code{"chr17"}), while \code{tqtlVariantRanges()} reflects the PLINK
+#' BIM file convention of bare chromosome numbers (e.g. \code{"17"}).  When
+#' \code{symbol} is used to select cis-variants, both seqname vectors are
+#' normalised by stripping any leading \code{"chr"} before comparison, so the
+#' window filter works regardless of which convention each source uses.
+#'
+#' If you write code that compares or intersects \code{rowRanges} and
+#' \code{tqtlVariantRanges} directly, apply the same normalisation:
+#' \preformatted{
+#'   sub("^chr", "", as.character(seqnames(gr)))
+#' }
+#'
 #' @examples
 #' exdir <- system.file("extdata", package = "tQTLExperiment")
 #' tqe <- tQTLExperiment(
