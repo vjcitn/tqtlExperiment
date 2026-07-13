@@ -6,7 +6,9 @@
 \usage{
 qtlRegressionStats(
   tqe,
-  pairs,
+  pairs = NULL,
+  symbol = NULL,
+  window = 1000000L,
   assayName = NULL,
   t_only = TRUE,
   wideFormat = TRUE,
@@ -17,7 +19,18 @@ qtlRegressionStats(
 \item{tqe}{A \link{tQTLExperiment} with genotype data.}
 
 \item{pairs}{A data frame with columns \code{phenotype_id} and
-\code{variant_id} identifying the SNP-gene pairs to analyse.}
+\code{variant_id} identifying the SNP-gene pairs to analyse.
+Mutually exclusive with \code{symbol}.}
+
+\item{symbol}{Character scalar. Gene symbol to look up in the
+\code{gene_name} column of \code{rowRanges(tqe)}. All variants within
+\code{window} bp of the gene's start are used as the SNP set.  The
+\code{tQTLExperiment} must have a \code{gene_name} column added via
+\code{\link[=addGeneSymbols]{addGeneSymbols()}}; the function stops with an informative error if it
+is absent.  Mutually exclusive with \code{pairs}.}
+
+\item{window}{Integer. Cis-window half-width in bp used when \code{symbol}
+is specified. Defaults to \code{1000000L}.}
 
 \item{assayName}{Name of the assay to use. Defaults to the first assay.}
 
