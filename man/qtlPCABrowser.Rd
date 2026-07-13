@@ -4,28 +4,36 @@
 \alias{qtlPCABrowser}
 \title{Interactive PCA browser for cis-QTL t-statistics}
 \usage{
-qtlPCABrowser(res, tqe, assayName = NULL)
+qtlPCABrowser(
+  res,
+  tqe,
+  assayName = NULL,
+  collapse_patterns = list(batch = "^t\\\\.factor_batch_", population =
+    "^t\\\\.population")
+)
 }
 \arguments{
 \item{res}{A wide data frame from \code{\link[=qtlRegressionStats]{qtlRegressionStats()}} with
 \code{t_only = TRUE}.  Must contain \code{phenotype_id} and
 \code{variant_id} columns.}
 
-\item{tqe}{A \link{tQTLExperiment} with genotype data, used to render the
-beeswarm plots on hover.}
+\item{tqe}{A \link{tQTLExperiment} with genotype data.}
 
-\item{assayName}{Name of the assay to use in \code{\link[=plotGenotypeEffect]{plotGenotypeEffect()}}.
-Defaults to the first assay.}
+\item{assayName}{Name of the assay to use. Defaults to the first assay.}
+
+\item{collapse_patterns}{Named list of regex patterns passed to
+\code{\link[=collapseFactorTstats]{collapseFactorTstats()}}.  Defaults handle MAGE-style batch and
+population columns.}
 }
 \value{
 A Shiny application object (invisibly).
 }
 \description{
-Computes a principal component analysis on the t-statistic matrix returned
-by \code{\link[=qtlRegressionStats]{qtlRegressionStats()}} (with \code{t_only = TRUE}) and launches a Shiny
-application showing a PC1 vs PC2 scatter plot (plotly).  Hovering over a
-point displays a beeswarm plot of phenotype expression by genotype for that
-SNP, rendered via \code{\link[=plotGenotypeEffect]{plotGenotypeEffect()}}.
+Collapses factor-expanded t-statistic columns via \code{\link[=collapseFactorTstats]{collapseFactorTstats()}},
+computes PCA on the result, and launches a Shiny application with a
+PC1 vs PC2 scatter plot (plotly).  Hovering over a point displays a
+beeswarm of phenotype expression by genotype for that SNP, with an optional
+colour-by selector for sample-level variables (e.g. sex, batch).
 }
 \examples{
 if (interactive()) {
