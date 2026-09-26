@@ -2,9 +2,10 @@
 #'
 #' Collapses factor-expanded t-statistic columns via [collapseFactorTstats()],
 #' computes PCA on the result, and launches a Shiny application with a
-#' PC1 vs PC2 scatter plot (plotly).  Hovering over a point displays a
-#' beeswarm of phenotype expression by genotype for that SNP, with an optional
-#' colour-by selector for sample-level variables (e.g. sex, batch).
+#' selectable PC-vs-PC scatter plot (plotly) and a pairs plot of the first five
+#' PCs.  Hovering over a point in the scatter plot displays a beeswarm of
+#' phenotype expression by genotype for that SNP, with an optional colour-by
+#' selector for sample-level variables (e.g. sex, batch).
 #'
 #' @param res A wide data frame from [qtlRegressionStats()] with
 #'   \code{t_only = TRUE}.  Must contain \code{phenotype_id} and
@@ -91,21 +92,47 @@ qtlPCABrowser <- function(res, tqe, assayName = NULL,
     pca     <- stats::prcomp(t_mat, center = TRUE, scale. = FALSE)
     pct_var <- round(100 * pca$sdev^2 / sum(pca$sdev^2), 1)
 
-    scores <- data.frame(
-        PC1        = pca$x[, 1],
-        PC2        = pca$x[, 2],
-        variant_id = res_clean[["variant_id"]],
-        stringsAsFactors = FALSE
-    )
+    pc_choices <- colnames(pca$x)
+    if (is.null(pc_choices))
+        pc_choices <- paste0("PC", seq_len(ncol(pca$x)))
+
+    scores <- data.frame(pca$x, check.names = FALSE)
+    scores[["variant_id"]] <- res_clean[["variant_id"]]
     phenotype_id <- res_clean[["phenotype_id"]][1L]
+    pc_axis_title <- function(pc) {
+        idx <- match(pc, pc_choices)
+        paste0(pc, " (", pct_var[idx], "%)")
+    }
+    pair_cols   <- head(pc_choices, 5L)
+    pair_labels <- pc_axis_title(pair_cols)
 
     # ---- Shiny UI ----------------------------------------------------------
     ui <- fluidPage(
         theme = bslib::bs_theme(bootswatch = "flatly"),
         titlePanel("cis-QTL t-stat PCA"),
         fluidRow(
-            column(7, plotly::plotlyOutput("pca", height = "550px")),
+            column(7,
+                   tabsetPanel(
+                       tabPanel(
+                           "PCA scatter",
+                           plotly::plotlyOutput("pca", height = "550px")
+                       ),
+                       tabPanel(
+                           "PC pairs",
+                           plotOutput("pc_pairs", height = "550px")
+                       )
+                   )),
             column(5,
+                   fluidRow(
+                       column(6,
+                              selectInput("x_pc", "X-axis PC:",
+                                          choices = pc_choices,
+                                          selected = pc_choices[1L])),
+                       column(6,
+                              selectInput("y_pc", "Y-axis PC:",
+                                          choices = pc_choices,
+                                          selected = pc_choices[min(2L, length(pc_choices))]))
+                   ),
                    selectInput("color_var", "Color beeswarm by:",
                                choices  = color_choices,
                                selected = if ("sexXY" %in% color_choices) "sexXY" else "none"),
@@ -117,26 +144,47 @@ qtlPCABrowser <- function(res, tqe, assayName = NULL,
     server <- function(input, output, session) {
 
         output$pca <- plotly::renderPlotly({
+            req(input$x_pc, input$y_pc)
+            x_pc <- input$x_pc
+            y_pc <- input$y_pc
             plotly::plot_ly(
                 scores,
-                x         = ~PC1,
-                y         = ~PC2,
-                key       = ~variant_id,
+                x         = scores[[x_pc]],
+                y         = scores[[y_pc]],
+                key       = scores[["variant_id"]],
                 type      = "scatter",
                 mode      = "markers",
-                text      = ~variant_id,
+                text      = scores[["variant_id"]],
                 hoverinfo = "text",
+                source    = "pca_scores",
                 marker    = list(size = 5, color = "steelblue", opacity = 0.6)
             ) |>
                 plotly::layout(
-                    xaxis = list(title = paste0("PC1 (", pct_var[1], "%)")),
-                    yaxis = list(title = paste0("PC2 (", pct_var[2], "%)")),
+                    xaxis = list(title = pc_axis_title(x_pc)),
+                    yaxis = list(title = pc_axis_title(y_pc)),
                     hoverlabel = list(bgcolor = "white")
                 )
         })
 
+        output$pc_pairs <- renderPlot({
+            if (length(pair_cols) < 2L) {
+                plot(0, 0, type = "n", axes = FALSE, xlab = "", ylab = "")
+                text(0, 0, "At least two PCs are required for a pairs plot",
+                     cex = 1.1, col = "grey50")
+                return(invisible(NULL))
+            }
+            graphics::pairs(
+                scores[, pair_cols, drop = FALSE],
+                labels = pair_labels,
+                pch    = 16,
+                cex    = 0.5,
+                col    = grDevices::adjustcolor("steelblue", alpha.f = 0.5),
+                main   = "First five PC score pairs"
+            )
+        })
+
         output$beeswarm <- renderPlot({
-            hover <- plotly::event_data("plotly_hover")
+            hover <- plotly::event_data("plotly_hover", source = "pca_scores")
             if (is.null(hover)) {
                 plot(0, 0, type = "n", axes = FALSE, xlab = "", ylab = "")
                 text(0, 0, "Hover over a point\nto see genotype effect",
