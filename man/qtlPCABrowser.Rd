@@ -5,17 +5,21 @@
 \title{Interactive PCA browser for cis-QTL t-statistics}
 \usage{
 qtlPCABrowser(
-  res,
-  tqe,
+  res = NULL,
+  tqe = NULL,
   assayName = NULL,
   collapse_patterns = list(batch = "^t\\\\.factor_batch_", population =
-    "^t\\\\.population")
+    "^t\\\\.population"),
+  window = 1000000L,
+  BPPARAM = BiocParallel::SerialParam()
 )
 }
 \arguments{
-\item{res}{A wide data frame from \code{\link[=qtlRegressionStats]{qtlRegressionStats()}} with
+\item{res}{Optional wide data frame from \code{\link[=qtlRegressionStats]{qtlRegressionStats()}} with
 \code{t_only = TRUE}.  Must contain \code{phenotype_id} and
-\code{variant_id} columns.}
+\code{variant_id} columns.  If omitted, the app lists available gene
+symbols from \code{rowRanges(tqe)$gene_name} and computes
+\code{qtlRegressionStats(tqe, symbol = ...)} on request.}
 
 \item{tqe}{A \link{tQTLExperiment} with genotype data.}
 
@@ -24,6 +28,12 @@ qtlPCABrowser(
 \item{collapse_patterns}{Named list of regex patterns passed to
 \code{\link[=collapseFactorTstats]{collapseFactorTstats()}}.  Defaults handle MAGE-style batch and
 population columns.}
+
+\item{window}{Integer. Cis-window half-width passed to
+\code{\link[=qtlRegressionStats]{qtlRegressionStats()}} when \code{res} is omitted.}
+
+\item{BPPARAM}{A \link[BiocParallel:BiocParallelParam-class]{BiocParallel::BiocParallelParam} object passed to
+\code{\link[=qtlRegressionStats]{qtlRegressionStats()}} when \code{res} is omitted.}
 }
 \value{
 A Shiny application object (invisibly).
@@ -35,6 +45,9 @@ selectable PC-vs-PC scatter plot (plotly) and a pairs plot of the first five
 PCs.  Hovering over a SNP-gene point in the scatter plot displays a
 beeswarm of gene expression by genotype for that pair, with an optional
 colour-by selector for sample-level variables (e.g. sex, batch).
+If regression statistics are not supplied, the app provides a gene-symbol
+selector and computes/memoises \code{\link[=qtlRegressionStats]{qtlRegressionStats()}} results within the
+Shiny session.
 }
 \examples{
 if (interactive()) {
@@ -46,7 +59,6 @@ if (interactive()) {
       genome      = "hg38"
   )
   tqe <- addGeneSymbols(tqe)
-  res <- qtlRegressionStats(tqe, symbol = "TPTEP1")
-  qtlPCABrowser(res, tqe)
+  qtlPCABrowser(tqe)
 }
 }
