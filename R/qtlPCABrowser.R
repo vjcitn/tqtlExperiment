@@ -102,7 +102,7 @@ qtlPCABrowser <- function(res, tqe, assayName = NULL,
     # ---- Shiny UI ----------------------------------------------------------
     ui <- fluidPage(
         theme = bslib::bs_theme(bootswatch = "flatly"),
-        titlePanel("cis-QTL coefficient PCA"),
+        titlePanel("cis-QTL t-stat PCA"),
         fluidRow(
             column(7, plotly::plotlyOutput("pca", height = "550px")),
             column(5,
