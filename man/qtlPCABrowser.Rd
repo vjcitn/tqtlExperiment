@@ -32,9 +32,9 @@ A Shiny application object (invisibly).
 Collapses factor-expanded t-statistic columns via \code{\link[=collapseFactorTstats]{collapseFactorTstats()}},
 computes PCA on the result, and launches a Shiny application with a
 selectable PC-vs-PC scatter plot (plotly) and a pairs plot of the first five
-PCs.  Hovering over a point in the scatter plot displays a beeswarm of
-phenotype expression by genotype for that SNP, with an optional colour-by
-selector for sample-level variables (e.g. sex, batch).
+PCs.  Hovering over a SNP-phenotype point in the scatter plot displays a
+beeswarm of phenotype expression by genotype for that pair, with an optional
+colour-by selector for sample-level variables (e.g. sex, batch).
 }
 \examples{
 if (interactive()) {

@@ -3,9 +3,9 @@
 #' Collapses factor-expanded t-statistic columns via [collapseFactorTstats()],
 #' computes PCA on the result, and launches a Shiny application with a
 #' selectable PC-vs-PC scatter plot (plotly) and a pairs plot of the first five
-#' PCs.  Hovering over a point in the scatter plot displays a beeswarm of
-#' phenotype expression by genotype for that SNP, with an optional colour-by
-#' selector for sample-level variables (e.g. sex, batch).
+#' PCs.  Hovering over a SNP-phenotype point in the scatter plot displays a
+#' beeswarm of phenotype expression by genotype for that pair, with an optional
+#' colour-by selector for sample-level variables (e.g. sex, batch).
 #'
 #' @param res A wide data frame from [qtlRegressionStats()] with
 #'   \code{t_only = TRUE}.  Must contain \code{phenotype_id} and
@@ -98,7 +98,12 @@ qtlPCABrowser <- function(res, tqe, assayName = NULL,
 
     scores <- data.frame(pca$x, check.names = FALSE)
     scores[["variant_id"]] <- res_clean[["variant_id"]]
-    phenotype_id <- res_clean[["phenotype_id"]][1L]
+    scores[["phenotype_id"]] <- res_clean[["phenotype_id"]]
+    scores[["row_id"]] <- seq_len(nrow(scores))
+    scores[["hover_text"]] <- paste0(
+        "SNP: ", scores[["variant_id"]],
+        "<br>Phenotype: ", scores[["phenotype_id"]]
+    )
     pc_axis_title <- function(pc) {
         idx <- match(pc, pc_choices)
         paste0(pc, " (", pct_var[idx], "%)")
@@ -151,10 +156,10 @@ qtlPCABrowser <- function(res, tqe, assayName = NULL,
                 scores,
                 x         = scores[[x_pc]],
                 y         = scores[[y_pc]],
-                key       = scores[["variant_id"]],
+                key       = scores[["row_id"]],
                 type      = "scatter",
                 mode      = "markers",
-                text      = scores[["variant_id"]],
+                text      = scores[["hover_text"]],
                 hoverinfo = "text",
                 source    = "pca_scores",
                 marker    = list(size = 5, color = "steelblue", opacity = 0.6)
@@ -192,17 +197,26 @@ qtlPCABrowser <- function(res, tqe, assayName = NULL,
                 return(invisible(NULL))
             }
 
-            vid <- if (!is.null(hover$key) && nzchar(hover$key))
-                hover$key
-            else
-                scores$variant_id[hover$pointNumber + 1L]
+            row_idx <- suppressWarnings(as.integer(hover$key))
+            if (is.na(row_idx) && !is.null(hover$pointNumber))
+                row_idx <- hover$pointNumber + 1L
+            if (is.na(row_idx) || row_idx < 1L || row_idx > nrow(scores)) {
+                plot(0, 0, type = "n", axes = FALSE, xlab = "", ylab = "")
+                text(0, 0, "Selected PCA point was not found",
+                     cex = 0.9, col = "grey50")
+                return(invisible(NULL))
+            }
+
+            vid <- scores[["variant_id"]][row_idx]
+            pid <- scores[["phenotype_id"]][row_idx]
 
             var_idx   <- match(vid, var_names)
-            pheno_idx <- match(phenotype_id, pheno_names)
+            pheno_idx <- match(pid, pheno_names)
 
             if (is.na(var_idx) || is.na(pheno_idx)) {
                 plot(0, 0, type = "n", axes = FALSE, xlab = "", ylab = "")
-                text(0, 0, paste("not found:", vid), cex = 0.9, col = "grey50")
+                text(0, 0, paste("not found:", vid, pid),
+                     cex = 0.9, col = "grey50")
                 return(invisible(NULL))
             }
 
@@ -236,8 +250,8 @@ qtlPCABrowser <- function(res, tqe, assayName = NULL,
 
             p + ggplot2::theme_minimal() +
                 ggplot2::xlab("Genotype (# alt alleles)") +
-                ggplot2::ylab("Phenotype") +
-                ggplot2::ggtitle(vid)
+                ggplot2::ylab(paste0("Phenotype value (", pid, ")")) +
+                ggplot2::ggtitle(paste0("SNP: ", vid, "\nPhenotype: ", pid))
         })
     }
 
