@@ -85,4 +85,5 @@ Collate:
   	get_cached_mage17SE.R
 	qtlRegressionStats.R
 	qtlPCABrowser.R
+	collapseFactorTstats.R
 
