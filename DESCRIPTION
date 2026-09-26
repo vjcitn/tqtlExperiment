@@ -1,6 +1,6 @@
 Package: tQTLExperiment
 Title: SummarizedExperiment Interface for the tensorQTL eQTL Mapping Tool
-Version: 0.1.45
+Version: 0.1.46
 Authors@R: c(
     person("Vincent", "Carey", email = "stvjc@channing.harvard.edu",
            role = c("aut", "cre")),
@@ -85,4 +85,3 @@ Collate:
   	get_cached_mage17SE.R
 	qtlRegressionStats.R
 	qtlPCABrowser.R
-
