@@ -3,8 +3,8 @@
 #' Collapses factor-expanded t-statistic columns via [collapseFactorTstats()],
 #' computes PCA on the result, and launches a Shiny application with a
 #' selectable PC-vs-PC scatter plot (plotly) and a pairs plot of the first five
-#' PCs.  Hovering over a SNP-phenotype point in the scatter plot displays a
-#' beeswarm of phenotype expression by genotype for that pair, with an optional
+#' PCs.  Hovering over a SNP-gene point in the scatter plot displays a
+#' beeswarm of gene expression by genotype for that pair, with an optional
 #' colour-by selector for sample-level variables (e.g. sex, batch).
 #'
 #' @param res A wide data frame from [qtlRegressionStats()] with
@@ -102,7 +102,7 @@ qtlPCABrowser <- function(res, tqe, assayName = NULL,
     scores[["row_id"]] <- seq_len(nrow(scores))
     scores[["hover_text"]] <- paste0(
         "SNP: ", scores[["variant_id"]],
-        "<br>Phenotype: ", scores[["phenotype_id"]]
+        "<br>Gene (ENSG): ", scores[["phenotype_id"]]
     )
     pc_axis_title <- function(pc) {
         idx <- match(pc, pc_choices)
@@ -250,8 +250,8 @@ qtlPCABrowser <- function(res, tqe, assayName = NULL,
 
             p + ggplot2::theme_minimal() +
                 ggplot2::xlab("Genotype (# alt alleles)") +
-                ggplot2::ylab(paste0("Phenotype value (", pid, ")")) +
-                ggplot2::ggtitle(paste0("SNP: ", vid, "\nPhenotype: ", pid))
+                ggplot2::ylab(paste0("Gene expression value (", pid, ")")) +
+                ggplot2::ggtitle(paste0("SNP: ", vid, "\nGene (ENSG): ", pid))
         })
     }
 
