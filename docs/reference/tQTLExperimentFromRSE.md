@@ -1,8 +1,4 @@
-<div id="main" class="col-md-9" role="main">
-
 # Construct a tQTLExperiment from a RangedSummarizedExperiment
-
-<div class="ref-description section level2">
 
 Converts an existing
 [SummarizedExperiment::RangedSummarizedExperiment](https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html)
@@ -10,13 +6,7 @@ into a
 [tQTLExperiment](https://github.com/vjcitn/tQTLExperiment/reference/tQTLExperiment.md)
 by attaching PLINK genotype data.
 
-</div>
-
-<div class="section level2">
-
 ## Usage
-
-<div class="sourceCode">
 
 ``` r
 tQTLExperimentFromRSE(
@@ -29,48 +19,38 @@ tQTLExperimentFromRSE(
 )
 ```
 
-</div>
-
-</div>
-
-<div class="section level2">
-
 ## Arguments
 
--   se:
+- se:
 
-    A
-    [SummarizedExperiment::RangedSummarizedExperiment](https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html).
+  A
+  [SummarizedExperiment::RangedSummarizedExperiment](https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html).
 
--   plinkPrefix:
+- plinkPrefix:
 
-    Path prefix for the PLINK file set.
+  Path prefix for the PLINK file set.
 
--   covariateMatrix:
+- covariateMatrix:
 
-    A numeric matrix (rows = samples, cols = covariates) built e.g. with
-    `stats::model.matrix()` on `as.data.frame(colData(se))`. See also
-    the
-    [ExploreModelMatrix](https://bioconductor.org/packages/ExploreModelMatrix)
-    package. Rename `(Intercept)` to `int` if including an intercept.
+  A numeric matrix (rows = samples, cols = covariates) built e.g. with
+  [`stats::model.matrix()`](https://rdrr.io/r/stats/model.matrix.html)
+  on `as.data.frame(colData(se))`. See also the
+  [ExploreModelMatrix](https://bioconductor.org/packages/ExploreModelMatrix)
+  package. Rename `(Intercept)` to `int` if including an intercept.
 
--   assayName:
+- assayName:
 
-    Name of the assay in `se` to use. Defaults to first.
+  Name of the assay in `se` to use. Defaults to first.
 
--   featureIdColumn:
+- featureIdColumn:
 
-    Optional mcols column name to use as `phenotype_id`; defaults to
-    `rownames(se)`.
+  Optional mcols column name to use as `phenotype_id`; defaults to
+  `rownames(se)`.
 
--   genome:
+- genome:
 
-    Genome build string (e.g. `"hg38"`) assigned to the `seqinfo` of
-    `rowRanges`. Defaults to `NA` (unspecified).
-
-</div>
-
-<div class="section level2">
+  Genome build string (e.g. `"hg38"`) assigned to the `seqinfo` of
+  `rowRanges`. Defaults to `NA` (unspecified).
 
 ## Value
 
@@ -78,13 +58,7 @@ A
 [tQTLExperiment](https://github.com/vjcitn/tQTLExperiment/reference/tQTLExperiment.md)
 object.
 
-</div>
-
-<div class="section level2">
-
 ## Examples
-
-<div class="sourceCode">
 
 ``` r
 exdir <- system.file("extdata", package = "tQTLExperiment")
@@ -110,12 +84,6 @@ tqe2
 #> rowRanges: GRanges with 20 features
 #> colData( 1 ) covariates: int  
 #> geno: 100 samples x 69638 variants [BEDMatrix - lazy]
-#> plinkPrefix: /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpTfmPqm/temp_libpathdad43b8ba3a7/tQTLExperiment/extdata/chr22-n100 
+#> plinkPrefix: /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpPoihVR/temp_libpath173973d2e8831/tQTLExperiment/extdata/chr22-n100 
 #> use prepareTQTL() to write inputs and get CLI command
 ```
-
-</div>
-
-</div>
-
-</div>

@@ -1,21 +1,11 @@
-<div id="main" class="col-md-9" role="main">
-
 # Read tensorQTL results into R
-
-<div class="ref-description section level2">
 
 Reads the output files written by a tensorQTL run into
 [GenomicRanges::GRanges](https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html)
 objects, matched to the features in the originating
 [tQTLExperiment](https://github.com/vjcitn/tQTLExperiment/reference/tQTLExperiment.md).
 
-</div>
-
-<div class="section level2">
-
 ## Usage
-
-<div class="sourceCode">
 
 ``` r
 readTQTL(
@@ -25,69 +15,47 @@ readTQTL(
 )
 ```
 
-</div>
-
-</div>
-
-<div class="section level2">
-
 ## Arguments
 
--   outDir:
+- outDir:
 
-    The same directory passed to `prepareTQTL()`.
+  The same directory passed to
+  [`prepareTQTL()`](https://github.com/vjcitn/tQTLExperiment/reference/prepareTQTL.md).
 
--   mode:
+- mode:
 
-    The mode used for the tensorQTL run.
+  The mode used for the tensorQTL run.
 
--   x:
+- x:
 
-    The
-    [tQTLExperiment](https://github.com/vjcitn/tQTLExperiment/reference/tQTLExperiment.md)
-    used to generate the input files, used to attach feature coordinates
-    to region-level results.
-
-</div>
-
-<div class="section level2">
+  The
+  [tQTLExperiment](https://github.com/vjcitn/tQTLExperiment/reference/tQTLExperiment.md)
+  used to generate the input files, used to attach feature coordinates
+  to region-level results.
 
 ## Value
 
 A named list of
 [GenomicRanges::GRanges](https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html):
 
--   `pairs`:
+- `pairs`:
 
-    (`cis_nominal`) Feature-variant pairs with association statistics.
+  (`cis_nominal`) Feature-variant pairs with association statistics.
 
--   `hits`:
+- `hits`:
 
-    (`cis`) One range per feature with permutation p-value.
+  (`cis`) One range per feature with permutation p-value.
 
--   `output_files`:
+- `output_files`:
 
-    (other modes) Paths to the raw output files.
-
-</div>
-
-<div class="section level2">
+  (other modes) Paths to the raw output files.
 
 ## See also
 
-<div class="dont-index">
-
-`prepareTQTL()` to write input files and obtain the CLI command.
-
-</div>
-
-</div>
-
-<div class="section level2">
+[`prepareTQTL()`](https://github.com/vjcitn/tQTLExperiment/reference/prepareTQTL.md)
+to write input files and obtain the CLI command.
 
 ## Examples
-
-<div class="sourceCode">
 
 ``` r
 # Load pre-computed tensorQTL results from demo data
@@ -129,9 +97,3 @@ head(res$pairs)
 #>   -------
 #>   seqinfo: 1 sequence from an unspecified genome; no seqlengths
 ```
-
-</div>
-
-</div>
-
-</div>

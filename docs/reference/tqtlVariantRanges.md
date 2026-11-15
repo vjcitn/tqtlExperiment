@@ -1,18 +1,8 @@
-<div id="main" class="col-md-9" role="main">
-
 # Access variant genomic ranges
-
-<div class="ref-description section level2">
 
 Access variant genomic ranges
 
-</div>
-
-<div class="section level2">
-
 ## Usage
-
-<div class="sourceCode">
 
 ``` r
 tqtlVariantRanges(x)
@@ -26,39 +16,23 @@ tqtlVariantRanges(x)
 tqtlVariantRanges(x) <- value
 ```
 
-</div>
-
-</div>
-
-<div class="section level2">
-
 ## Arguments
 
--   x:
+- x:
 
-    A
-    [tQTLExperiment](https://github.com/vjcitn/tQTLExperiment/reference/tQTLExperiment.md).
+  A
+  [tQTLExperiment](https://github.com/vjcitn/tQTLExperiment/reference/tQTLExperiment.md).
 
--   value:
+- value:
 
-    A
-    [GenomicRanges::GRanges](https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html).
-
-</div>
-
-<div class="section level2">
+  A
+  [GenomicRanges::GRanges](https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html).
 
 ## Value
 
 A `GRanges` with metadata columns `snp_id`, `ref`, `alt`.
 
-</div>
-
-<div class="section level2">
-
 ## Examples
-
-<div class="sourceCode">
 
 ``` r
 exdir <- system.file("extdata", package = "tQTLExperiment")
@@ -99,9 +73,3 @@ tqtlVariantRanges(tqe)
 #>   -------
 #>   seqinfo: 1 sequence from an unspecified genome; no seqlengths
 ```
-
-</div>
-
-</div>
-
-</div>

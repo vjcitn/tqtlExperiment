@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tQTLExperiment</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.29</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.50</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -17,6 +17,12 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/tQTLExperiment.html">Get started</a></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/cisQTLBrowser.html">Interactive cis-QTL browsing with run_cis_qtl_browser</a></li>
+    <li><a class="dropdown-item" href="../articles/pcaBrowser.html">PCA exploration of cis-QTL t-statistics with qtlPCABrowser</a></li>
+    <li><a class="dropdown-item" href="../articles/regressionStats.html">Per-pair regression statistics with qtlRegressionStats</a></li>
+  </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="nav-link" href="https://github.com/vjcitn/tQTLExperiment/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
@@ -78,10 +84,24 @@
 
         <dt>
 
+          <code><a href="collapseFactorTstats.html">collapseFactorTstats()</a></code>
+
+        </dt>
+        <dd>Collapse factor-expanded t-statistic columns into group summaries</dd>
+
+        <dt>
+
           <code><a href="findTQTL.html">findTQTL()</a></code>
 
         </dt>
         <dd>Find a Python installation with tensorQTL</dd>
+
+        <dt>
+
+          <code><a href="get_cached_mage17SE.html">get_cached_mage17SE()</a></code>
+
+        </dt>
+        <dd>Cache and load the MAGE chr17 SummarizedExperiment</dd>
 
         <dt>
 
@@ -95,7 +115,21 @@
           <code><a href="prepareTQTL.html">prepareTQTL()</a></code>
 
         </dt>
-        <dd>Prepare input files and return the tensorQTL CLI command</dd>
+        <dd>Prepare input files and return the tensorQTL CLI command. Writes the phenotype BED file and (optionally) the covariate file to a user-specified directory, then returns the complete <code>python -m tensorqtl</code> command string. The user runs this command in a terminal where their Python/conda environment is properly configured, then calls <code><a href="../reference/readTQTL.html">readTQTL()</a></code> to load the results back into R.</dd>
+
+        <dt>
+
+          <code><a href="qtlPCABrowser.html">qtlPCABrowser()</a></code>
+
+        </dt>
+        <dd>Interactive PCA browser for cis-QTL t-statistics</dd>
+
+        <dt>
+
+          <code><a href="qtlRegressionStats.html">qtlRegressionStats()</a></code>
+
+        </dt>
+        <dd>Linear regression statistics for a collection of SNP-gene pairs</dd>
 
         <dt>
 
@@ -109,7 +143,7 @@
           <code><a href="run_cis_qtl_browser.html">run_cis_qtl_browser()</a></code>
 
         </dt>
-        <dd>Interactive cis-QTL browser</dd>
+        <dd>Interactive cis-QTL browser. Launches a Shiny application for exploring cis-QTL associations. Users can select genes, view associated SNPs, and visualize the genotype effect on phenotypes using <code><a href="../reference/plotGenotypeEffect.html">plotGenotypeEffect()</a></code>.</dd>
 
         <dt>
 
@@ -130,7 +164,7 @@
           <code><a href="tQTLExperiment-class.html">tQTLExperiment-class</a></code>
 
         </dt>
-        <dd>tQTLExperiment: a SummarizedExperiment for tensorQTL eQTL mapping</dd>
+        <dd>tQTLExperiment: a SummarizedExperiment for tensorQTL eQTL mapping. <code>tQTLExperiment</code> extends <a href="https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html" class="external-link">SummarizedExperiment::RangedSummarizedExperiment</a> to hold all data needed for the tensorQTL eQTL mapping tool:</dd>
 
         <dt>
 
@@ -182,7 +216,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

@@ -1,22 +1,15 @@
-<div id="main" class="col-md-9" role="main">
+# Prepare input files and return the tensorQTL CLI command. Writes the phenotype BED file and (optionally) the covariate file to a user-specified directory, then returns the complete `python -m tensorqtl` command string. The user runs this command in a terminal where their Python/conda environment is properly configured, then calls [`readTQTL()`](https://github.com/vjcitn/tQTLExperiment/reference/readTQTL.md) to load the results back into R.
 
-# Prepare input files and return the tensorQTL CLI command
-
-<div class="ref-description section level2">
-
-Writes the phenotype BED file and (optionally) the covariate file to a
+Prepare input files and return the tensorQTL CLI command. Writes the
+phenotype BED file and (optionally) the covariate file to a
 user-specified directory, then returns the complete
 `python -m tensorqtl` command string. The user runs this command in a
 terminal where their Python/conda environment is properly configured,
-then calls `readTQTL()` to load the results back into R.
-
-</div>
-
-<div class="section level2">
+then calls
+[`readTQTL()`](https://github.com/vjcitn/tQTLExperiment/reference/readTQTL.md)
+to load the results back into R.
 
 ## Usage
-
-<div class="sourceCode">
 
 ``` r
 prepareTQTL(
@@ -27,89 +20,69 @@ prepareTQTL(
   mafThreshold = 0.05,
   window = 1000000L,
   permutations = 1000L,
-  python = "python3",
+  python = .detect_python(),
   ...
 )
 ```
 
-</div>
-
-</div>
-
-<div class="section level2">
-
 ## Arguments
 
--   x:
+- x:
 
-    A
-    [tQTLExperiment](https://github.com/vjcitn/tQTLExperiment/reference/tQTLExperiment.md).
+  A
+  [tQTLExperiment](https://github.com/vjcitn/tQTLExperiment/reference/tQTLExperiment.md).
 
--   outDir:
+- outDir:
 
-    Path to an existing directory that will hold both the intermediate
-    input files and the tensorQTL output. **Must be specified by the
-    caller** - no default is provided.
+  Path to an existing directory that will hold both the intermediate
+  input files and the tensorQTL output. **Must be specified by the
+  caller** - no default is provided.
 
--   mode:
+- mode:
 
-    One of `"cis_nominal"`, `"cis"`, `"cis_independent"`, `"trans"`.
-    Passed to `--mode`.
+  One of `"cis_nominal"`, `"cis"`, `"cis_independent"`, `"trans"`.
+  Passed to `--mode`.
 
--   assayName:
+- assayName:
 
-    Name of the assay to use as the phenotype matrix. Defaults to the
-    first assay.
+  Name of the assay to use as the phenotype matrix. Defaults to the
+  first assay.
 
--   mafThreshold:
+- mafThreshold:
 
-    MAF threshold. Defaults to `0.05`.
+  MAF threshold. Defaults to `0.05`.
 
--   window:
+- window:
 
-    Cis-window in base pairs. Defaults to `1000000`.
+  Cis-window in base pairs. Defaults to `1000000`.
 
--   permutations:
+- permutations:
 
-    Permutations for `"cis"` mode. Defaults to `1000`.
+  Permutations for `"cis"` mode. Defaults to `1000`.
 
--   python:
+- python:
 
-    Path to the Python executable to embed in the returned command
-    string. Defaults to `"python3"`.
+  Path to the Python executable to embed in the returned command string.
+  Defaults to auto-detection: uses the Python inside the active conda
+  environment (`CONDA_PREFIX`) or virtualenv (`VIRTUAL_ENV`) if set,
+  otherwise the first `python3` on `PATH`.
 
--   ...:
+- ...:
 
-    Additional `--key value` flags passed to tensorQTL verbatim.
-
-</div>
-
-<div class="section level2">
+  Additional `--key value` flags passed to tensorQTL verbatim.
 
 ## Value
 
 A character string containing the complete shell command to run. The
-string is also printed via `message()` for easy copy-paste.
-
-</div>
-
-<div class="section level2">
+string is also printed via
+[`message()`](https://rdrr.io/r/base/message.html) for easy copy-paste.
 
 ## See also
 
-<div class="dont-index">
-
-`readTQTL()` to load results after the command has been run.
-
-</div>
-
-</div>
-
-<div class="section level2">
+[`readTQTL()`](https://github.com/vjcitn/tQTLExperiment/reference/readTQTL.md)
+to load results after the command has been run.
 
 ## Examples
-
-<div class="sourceCode">
 
 ``` r
 exdir <- system.file("extdata", package = "tQTLExperiment")
@@ -122,15 +95,9 @@ tqe <- tQTLExperiment(
 cmd <- prepareTQTL(tqe, outDir = tempdir(), mode = "cis_nominal")
 #> Run the following command in a terminal with tensorqtl available:
 #> 
-#> python3 -m tensorqtl /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpTfmPqm/temp_libpathdad43b8ba3a7/tQTLExperiment/extdata/chr22-n100 /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//Rtmp110Khc/pheno.bed /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//Rtmp110Khc/tqtl_out --mode cis_nominal --maf_threshold 0.05 --window 1000000 -o /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//Rtmp110Khc
+#> /Users/vincentcarey/miniforge3/bin/python3 -m tensorqtl /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpPoihVR/temp_libpath173973d2e8831/tQTLExperiment/extdata/chr22-n100 /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmphMYBsb/pheno.bed /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmphMYBsb/tqtl_out --mode cis_nominal --maf_threshold 0.05 --window 1000000 -o /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmphMYBsb
 #> 
-#> Then call readTQTL('/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//Rtmp110Khc', mode = 'cis_nominal') to load results into R.
+#> Then call readTQTL('/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmphMYBsb', mode = 'cis_nominal') to load results into R.
 cat(cmd, "\n")
-#> python3 -m tensorqtl /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpTfmPqm/temp_libpathdad43b8ba3a7/tQTLExperiment/extdata/chr22-n100 /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//Rtmp110Khc/pheno.bed /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//Rtmp110Khc/tqtl_out --mode cis_nominal --maf_threshold 0.05 --window 1000000 -o /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//Rtmp110Khc 
+#> /Users/vincentcarey/miniforge3/bin/python3 -m tensorqtl /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpPoihVR/temp_libpath173973d2e8831/tQTLExperiment/extdata/chr22-n100 /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmphMYBsb/pheno.bed /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmphMYBsb/tqtl_out --mode cis_nominal --maf_threshold 0.05 --window 1000000 -o /var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T//RtmphMYBsb 
 ```
-
-</div>
-
-</div>
-
-</div>

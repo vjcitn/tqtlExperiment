@@ -1,8 +1,4 @@
-<div id="main" class="col-md-9" role="main">
-
 # Cache pre-computed MAGE chr17 tensorQTL results
-
-<div class="ref-description section level2">
 
 Downloads the pre-computed `cis_nominal` tensorQTL results for MAGE
 chromosome 17 from the tQTLExperiment GitHub release into a
@@ -11,13 +7,7 @@ object and loaded into memory as a
 [GenomicRanges::GRanges](https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html)
 object.
 
-</div>
-
-<div class="section level2">
-
 ## Usage
-
-<div class="sourceCode">
 
 ``` r
 cache_mage_chr17_cis(
@@ -28,32 +18,22 @@ cache_mage_chr17_cis(
 )
 ```
 
-</div>
-
-</div>
-
-<div class="section level2">
-
 ## Arguments
 
--   release\_url:
+- release_url:
 
-    Base URL of the GitHub release assets. Defaults to the
-    `v0.1.0-demo-data` release of `vjcitn/tQTLExperiment`.
+  Base URL of the GitHub release assets. Defaults to the
+  `v0.1.0-demo-data` release of `vjcitn/tQTLExperiment`.
 
--   bfc:
+- bfc:
 
-    A
-    [BiocFileCache::BiocFileCache](https://rdrr.io/pkg/BiocFileCache/man/BiocFileCache-class.html)
-    object. Defaults to the user-level cache.
+  A
+  [BiocFileCache::BiocFileCache](https://rdrr.io/pkg/BiocFileCache/man/BiocFileCache-class.html)
+  object. Defaults to the user-level cache.
 
--   verbose:
+- verbose:
 
-    Logical. Emit progress messages? Default `TRUE`.
-
-</div>
-
-<div class="section level2">
+  Logical. Emit progress messages? Default `TRUE`.
 
 ## Value
 
@@ -64,13 +44,7 @@ object containing 71,000+ feature-variant pairs from tensorQTL
 `variant_id`, `tss_distance`, `ma_samples`, `ma_count`, `maf`,
 `pval_nominal`, and `slope`.
 
-</div>
-
-<div class="section level2">
-
 ## Examples
-
-<div class="sourceCode">
 
 ``` r
 if (FALSE) { # \dontrun{
@@ -78,9 +52,3 @@ gr <- cache_mage_chr17_cis()
 head(gr)
 } # }
 ```
-
-</div>
-
-</div>
-
-</div>

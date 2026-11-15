@@ -1,8 +1,4 @@
-<div id="main" class="col-md-9" role="main">
-
 # Add gene symbols to rowRanges
-
-<div class="ref-description section level2">
 
 Looks up HGNC gene symbols for Ensembl gene IDs in `rownames(x)` using
 an [ensembldb::EnsDb](https://rdrr.io/pkg/ensembldb/man/EnsDb.html)
@@ -10,55 +6,34 @@ annotation object and adds them as a `gene_name` column in
 `mcols(rowRanges(x))`. Version suffixes (e.g. `.3` in
 `ENSG00000100181.3`) are stripped before lookup.
 
-</div>
-
-<div class="section level2">
-
 ## Usage
-
-<div class="sourceCode">
 
 ``` r
 addGeneSymbols(x, ensdb = NULL)
 ```
 
-</div>
-
-</div>
-
-<div class="section level2">
-
 ## Arguments
 
--   x:
+- x:
 
-    A
-    [tQTLExperiment](https://github.com/vjcitn/tQTLExperiment/reference/tQTLExperiment.md)
-    (or any
-    [SummarizedExperiment::RangedSummarizedExperiment](https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html)
-    with Ensembl IDs as `rownames`).
+  A
+  [tQTLExperiment](https://github.com/vjcitn/tQTLExperiment/reference/tQTLExperiment.md)
+  (or any
+  [SummarizedExperiment::RangedSummarizedExperiment](https://rdrr.io/pkg/SummarizedExperiment/man/RangedSummarizedExperiment-class.html)
+  with Ensembl IDs as `rownames`).
 
--   ensdb:
+- ensdb:
 
-    An [ensembldb::EnsDb](https://rdrr.io/pkg/ensembldb/man/EnsDb.html)
-    object. Defaults to `EnsDb.Hsapiens.v79::EnsDb.Hsapiens.v79` if that
-    package is installed.
-
-</div>
-
-<div class="section level2">
+  An [ensembldb::EnsDb](https://rdrr.io/pkg/ensembldb/man/EnsDb.html)
+  object. Defaults to
+  [`EnsDb.Hsapiens.v79::EnsDb.Hsapiens.v79`](https://rdrr.io/pkg/EnsDb.Hsapiens.v79/man/package.html)
+  if that package is installed.
 
 ## Value
 
 `x` with an additional `gene_name` metadata column in `rowRanges(x)`.
 
-</div>
-
-<div class="section level2">
-
 ## Examples
-
-<div class="sourceCode">
 
 ``` r
 exdir <- system.file("extdata", package = "tQTLExperiment")
@@ -72,9 +47,3 @@ tqe <- tQTLExperiment(
 if (requireNamespace("EnsDb.Hsapiens.v79", quietly = TRUE))
     tqe <- addGeneSymbols(tqe)
 ```
-
-</div>
-
-</div>
-
-</div>

@@ -1,20 +1,10 @@
-<div id="main" class="col-md-9" role="main">
-
 # Plot phenotype values grouped by SNP genotype
-
-<div class="ref-description section level2">
 
 Creates a beeswarm plot comparing a phenotype across genotype groups (0,
 1, 2 copies of the alternate allele) for a given SNP. Useful for
 visualizing the effect of a significant eQTL variant.
 
-</div>
-
-<div class="section level2">
-
 ## Usage
-
-<div class="sourceCode">
 
 ``` r
 plotGenotypeEffect(
@@ -28,58 +18,42 @@ plotGenotypeEffect(
 )
 ```
 
-</div>
-
-</div>
-
-<div class="section level2">
-
 ## Arguments
 
--   x:
+- x:
 
-    A
-    [tQTLExperiment](https://github.com/vjcitn/tQTLExperiment/reference/tQTLExperiment.md).
+  A
+  [tQTLExperiment](https://github.com/vjcitn/tQTLExperiment/reference/tQTLExperiment.md).
 
--   snp\_id:
+- snp_id:
 
-    Character. SNP identifier (row name in `variantRanges(x)`).
+  Character. SNP identifier (row name in `variantRanges(x)`).
 
--   phenotype\_id:
+- phenotype_id:
 
-    Character. Phenotype/gene identifier (row name in `rowRanges(x)`).
+  Character. Phenotype/gene identifier (row name in `rowRanges(x)`).
 
--   assayName:
+- assayName:
 
-    Name of the assay to use. Defaults to the first assay.
+  Name of the assay to use. Defaults to the first assay.
 
--   size:
+- size:
 
-    Point size for beeswarm. Default 2.
+  Point size for beeswarm. Default 2.
 
--   color:
+- color:
 
-    Color for points. Default "steelblue".
+  Color for points. Default "steelblue".
 
--   title:
+- title:
 
-    Main plot title. If `NULL`, auto-generated from SNP and gene.
-
-</div>
-
-<div class="section level2">
+  Main plot title. If `NULL`, auto-generated from SNP and gene.
 
 ## Value
 
 A ggplot2 plot object.
 
-</div>
-
-<div class="section level2">
-
 ## Examples
-
-<div class="sourceCode">
 
 ``` r
 if (!requireNamespace("CSHLvc2026")) BiocManager::install("vjcitn/CSHLvc2026")
@@ -105,9 +79,3 @@ tqe <- tQTLExperimentFromRSE(
 #> Extracting number of variants and colnames from CCDG_mage_chr17.bim...
 plotGenotypeEffect(tqe, "17:410391:T:C", "ENSG00000187624.9")
 ```
-
-</div>
-
-</div>
-
-</div>

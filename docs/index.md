@@ -1,8 +1,4 @@
-<div id="main" class="col-md-9" role="main">
-
 # tQTLExperiment is a package for xQTL data management
-
-<div class="section level1">
 
 This package defines a data structure that combines molecular phenotype
 data with genotype data in PLINK bed format.
@@ -10,8 +6,6 @@ data with genotype data in PLINK bed format.
 The functions in the package permit interoperation with tensorqtl to
 collect statistics on association between genotype and molecular
 phenotypes.
-
-<div class="section level2">
 
 ## Data structure review
 
@@ -46,13 +40,7 @@ phenotypes.
       -------
       seqinfo: 1 sequence from hg38 genome; no seqlengths
 
-</div>
-
-<div class="section level2">
-
 ## Running tensorqtl
-
-<div class="section level3">
 
 ### Preparing the data
 
@@ -64,10 +52,6 @@ statistics.
     > tt = prepareTQTL(tqe, outDir="/tmp/test1")
     > tt
     [1] "python3 -m tensorqtl /Library/Frameworks/R.framework/Versions/4.6/Resources/library/tQTLExperiment/extdata/chr22-n100 /tmp/test1/pheno.bed /tmp/test1/tqtl_out --mode cis_nominal --maf_threshold 0.05 --window 1000000 -o /tmp/test1 --covariates /tmp/test1/covariates.tsv"
-
-</div>
-
-<div class="section level3">
 
 ### Running tensorqtl
 
@@ -118,10 +102,6 @@ statistics.
     done.
     [Jun 16 07:16:39] Finished mapping
 
-</div>
-
-<div class="section level3">
-
 ### Retrieving results to R
 
 Some improvements are needed …
@@ -171,11 +151,3 @@ Some improvements are needed …
       [71522]  0.000927042 0.001205440
       -------
       seqinfo: 1 sequence from an unspecified genome; no seqlengths
-
-</div>
-
-</div>
-
-</div>
-
-</div>

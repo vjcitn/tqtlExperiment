@@ -1,20 +1,10 @@
-<div id="main" class="col-md-9" role="main">
-
 # Construct a tQTLExperiment from input files
-
-<div class="ref-description section level2">
 
 Reads phenotype, covariate, and variant metadata files into a
 tQTLExperiment object. Genotype data is represented lazily via
 [BEDMatrix::BEDMatrix](https://rdrr.io/pkg/BEDMatrix/man/BEDMatrix.html).
 
-</div>
-
-<div class="section level2">
-
 ## Usage
-
-<div class="sourceCode">
 
 ``` r
 tQTLExperiment(
@@ -26,56 +16,40 @@ tQTLExperiment(
 )
 ```
 
-</div>
-
-</div>
-
-<div class="section level2">
-
 ## Arguments
 
--   plinkPrefix:
+- plinkPrefix:
 
-    Path prefix for the PLINK file set (`.bed`, `.bim`, `.fam`).
+  Path prefix for the PLINK file set (`.bed`, `.bim`, `.fam`).
 
--   phenoFile:
+- phenoFile:
 
-    Path to the phenotype BED file (tab-separated, columns `#chr`,
-    `start`, `end`, `phenotype_id`, then one column per sample; 0-based
-    half-open coordinates).
+  Path to the phenotype BED file (tab-separated, columns `#chr`,
+  `start`, `end`, `phenotype_id`, then one column per sample; 0-based
+  half-open coordinates).
 
--   covFile:
+- covFile:
 
-    Path to the covariate file. tensorQTL expects covariates as rows
-    with the first column being the covariate name and remaining columns
-    being sample values (covariates × samples). If `NULL`, no covariate
-    file is used.
+  Path to the covariate file. tensorQTL expects covariates as rows with
+  the first column being the covariate name and remaining columns being
+  sample values (covariates × samples). If `NULL`, no covariate file is
+  used.
 
--   assayName:
+- assayName:
 
-    Name to assign the phenotype matrix in `assays()`. Defaults to
-    `"pheno"`.
+  Name to assign the phenotype matrix in `assays()`. Defaults to
+  `"pheno"`.
 
--   genome:
+- genome:
 
-    Genome build string (e.g. `"hg38"`) assigned to the `seqinfo` of
-    `rowRanges`. Defaults to `NA` (unspecified).
-
-</div>
-
-<div class="section level2">
+  Genome build string (e.g. `"hg38"`) assigned to the `seqinfo` of
+  `rowRanges`. Defaults to `NA` (unspecified).
 
 ## Value
 
 A tQTLExperiment object.
 
-</div>
-
-<div class="section level2">
-
 ## Examples
-
-<div class="sourceCode">
 
 ``` r
 exdir <- system.file("extdata", package = "tQTLExperiment")
@@ -94,12 +68,6 @@ tqe
 #> rowRanges: GRanges with 20 features
 #> colData( 11 ) covariates: int, sex, age, expr_pc1 ... 
 #> geno: 100 samples x 69638 variants [BEDMatrix - lazy]
-#> plinkPrefix: /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpTfmPqm/temp_libpathdad43b8ba3a7/tQTLExperiment/extdata/chr22-n100 
+#> plinkPrefix: /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpPoihVR/temp_libpath173973d2e8831/tQTLExperiment/extdata/chr22-n100 
 #> use prepareTQTL() to write inputs and get CLI command
 ```
-
-</div>
-
-</div>
-
-</div>

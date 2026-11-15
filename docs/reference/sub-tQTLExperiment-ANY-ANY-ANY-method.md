@@ -1,69 +1,43 @@
-<div id="main" class="col-md-9" role="main">
-
 # Subset a tQTLExperiment
-
-<div class="ref-description section level2">
 
 Sample subsetting propagates to the lazy `geno` matrix (BEDMatrix rows).
 
-</div>
-
-<div class="section level2">
-
 ## Usage
-
-<div class="sourceCode">
 
 ``` r
 # S4 method for class 'tQTLExperiment,ANY,ANY,ANY'
 x[i, j, ..., drop = FALSE]
 ```
 
-</div>
-
-</div>
-
-<div class="section level2">
-
 ## Arguments
 
--   x:
+- x:
 
-    A
-    [tQTLExperiment](https://github.com/vjcitn/tQTLExperiment/reference/tQTLExperiment.md).
+  A
+  [tQTLExperiment](https://github.com/vjcitn/tQTLExperiment/reference/tQTLExperiment.md).
 
--   i:
+- i:
 
-    Row (feature) index.
+  Row (feature) index.
 
--   j:
+- j:
 
-    Column (sample) index.
+  Column (sample) index.
 
--   ...:
+- ...:
 
-    Ignored.
+  Ignored.
 
--   drop:
+- drop:
 
-    Ignored.
-
-</div>
-
-<div class="section level2">
+  Ignored.
 
 ## Value
 
 A
 [tQTLExperiment](https://github.com/vjcitn/tQTLExperiment/reference/tQTLExperiment.md).
 
-</div>
-
-<div class="section level2">
-
 ## Examples
-
-<div class="sourceCode">
 
 ``` r
 exdir <- system.file("extdata", package = "tQTLExperiment")
@@ -80,12 +54,6 @@ tqe[1:5, 1:10]
 #> rowRanges: GRanges with 5 features
 #> colData( 0 ) covariates:   
 #> geno: 10 samples x 69638 variants [BEDMatrix - lazy]
-#> plinkPrefix: /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpTfmPqm/temp_libpathdad43b8ba3a7/tQTLExperiment/extdata/chr22-n100 
+#> plinkPrefix: /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpPoihVR/temp_libpath173973d2e8831/tQTLExperiment/extdata/chr22-n100 
 #> use prepareTQTL() to write inputs and get CLI command
 ```
-
-</div>
-
-</div>
-
-</div>
