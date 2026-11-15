@@ -19,7 +19,7 @@ options(digits = 3)
 
 # Overview
 
-`tQTLExperiment` wraps the
+`tQTLExperiment` wraps data components of use with the
 [tensorQTL](https://github.com/broadinstitute/tensorqtl) GPU-accelerated eQTL
 mapping tool in a
 [SummarizedExperiment](https://bioconductor.org/packages/SummarizedExperiment)-style
@@ -32,8 +32,7 @@ Python in separate environments:
 3. `readTQTL()` — reads the output files back into R as
    [GRanges](https://bioconductor.org/packages/GenomicRanges).
 
-This avoids all R/Python environment conflicts (conda PATH issues, `rpy2`
-segfaults, duplicate OpenMP runtimes).
+This avoids all R/Python environment conflicts. 
 
 Genotype data are represented **lazily** via
 [BEDMatrix](https://CRAN.R-project.org/package=BEDMatrix) — the PLINK `.bed`
@@ -172,11 +171,17 @@ KMP_DUPLICATE_LIB_OK=TRUE <paste command>
 ## readTQTL
 
 Once tensorQTL finishes, load results back into R.  Passing `x = tqe17`
-propagates the genome build and gene symbols automatically.
+propagates the genome build and gene symbols automatically, and -- for
+`mode = "cis_nominal"` -- also binds the output directory onto a copy of
+`tqe17` (returned as `res$tqe`), so it can be queried later without
+reloading the whole table (see
+["Lazy querying of bound results"](#lazy-querying-of-bound-results)
+below).
 
 ```{r read, eval=FALSE}
 res <- readTQTL(outdir, mode = "cis_nominal", x = tqe17)
 res$pairs
+tqe17 <- res$tqe   # now carries a bound results directory
 ```
 
 # Exploring results
@@ -252,6 +257,31 @@ tqe <- tQTLExperimentFromRSE(
 )
 tqe
 plotGenotypeEffect(tqe, "17:410391:T:C", "ENSG00000187624.9")
+```
+
+# Lazy querying of bound results
+
+A real `cis_nominal` run can produce a very large pair-level table (sum
+over genes of each gene's cis-SNPs), too large to want sitting fully
+loaded in memory just for being attached to a `tQTLExperiment`. Instead
+of storing the data itself, `readTQTL(..., x = tqe)` binds only the
+*directory* onto a copy of `tqe` -- the same lazy-access pattern already
+used for genotypes (`geno`/`plinkPrefix`, never loaded until subscripted).
+
+```{r bind_results}
+res_bound <- readTQTL(demodir, mode = "cis_nominal", x = tqe)
+tqe <- res_bound$tqe
+tqtlResultsDir(tqe)
+```
+
+`tqtlResults()` then queries that directory on demand. Filtering by
+`phenotype_id` or `variant_id` is pushed down to the parquet files via
+`arrow`, so only the matching rows are ever read into R -- the
+genome-wide table is never materialized:
+
+```{r query_results}
+one_gene <- res_bound$pairs$phenotype_id[1]
+tqtlResults(tqe, phenotype_id = one_gene)
 ```
 
 # Session info
