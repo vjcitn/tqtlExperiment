@@ -1,0 +1,24 @@
+.DS_Store
+.Rproj.user
+.Rhistory
+.RData
+
+# knitr vignette build byproducts
+vignettes/*.R
+vignettes/*.html
+
+# scratch / experiment working files
+inst/bigrun/
+inst/demodir/
+inst/scripts/PAR/
+inst/scripts/*.rds
+inst/scripts/BRCA1_cis_stats.R
+inst/scripts/TP53_cis_stats.R
+inst/scripts/chr17_cis_pipeline.R
+inst/scripts/uuu.R
+inst/scripts/doBiplot.hist.txt
+inst/scripts/dobrca1
+inst/scripts/dotp53
+inst/scripts/doit
+doit
+maketq
