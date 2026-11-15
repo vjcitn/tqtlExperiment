@@ -33,7 +33,7 @@
 #'
 #' @rawNamespace import(shiny, except=c(dataTableOutput, renderDataTable))
 #' @importFrom bslib bs_theme
-#' @importFrom DT dataTableOutput renderDataTable datatable
+#' @importFrom DT dataTableOutput renderDataTable datatable formatRound
 #' @export
 #'
 #' @examples
@@ -219,8 +219,13 @@ run_cis_qtl_browser <- function(tqe, cis_gr,
     })
 
     output$cis_table <- renderDataTable({
-      datatable(
-        cis_data(),
+      tab <- cis_data()
+      # round only non-integer numeric columns (e.g. pval, slope, af);
+      # distances and counts (integer-valued) are left unrounded
+      num_cols <- names(tab)[vapply(tab, function(col)
+          is.numeric(col) && !is.integer(col), logical(1))]
+      dt <- datatable(
+        tab,
         selection = "none",
         rownames  = FALSE,
         filter    = "top",
@@ -229,6 +234,9 @@ run_cis_qtl_browser <- function(tqe, cis_gr,
           scrollX    = TRUE
         )
       )
+      if (length(num_cols))
+        dt <- DT::formatRound(dt, columns = num_cols, digits = 4)
+      dt
     })
   }
 
