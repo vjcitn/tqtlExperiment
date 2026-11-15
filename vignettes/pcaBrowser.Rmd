@@ -1,0 +1,130 @@
+---
+title: "PCA exploration of cis-QTL t-statistics with qtlPCABrowser"
+author: "Claude Sonnet + Vincent Carey"
+date: "`r Sys.Date()`"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_float: true
+vignette: >
+  %\VignetteIndexEntry{PCA exploration of cis-QTL t-statistics with qtlPCABrowser}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+options(digits = 3)
+```
+
+# Overview
+
+`qtlPCABrowser()` launches a Shiny application that runs PCA on the
+per-covariate t-statistics produced by
+[`qtlRegressionStats()`](regressionStats.html) for a set of SNP-gene pairs,
+and lets you explore the result interactively:
+
+- a **PCA scatter** tab (`plotly`) with selectable PC axes; hovering over a
+  point shows a beeswarm of that pair's gene expression by genotype, in the
+  panel to the right, optionally colored by a sample-level covariate,
+- a **PC pairs** tab, a base-R `pairs()` plot of the first five PCs.
+
+Because each row of the t-statistic matrix is one SNP-gene pair and each
+column is one covariate term, PC1/PC2 of this matrix summarize how pairs
+differ in the *pattern* of covariate effects driving their association --
+useful for spotting pairs whose signal is dominated by a batch or
+population effect rather than genotype.
+
+```{r loaddata, message=FALSE}
+library(tQTLExperiment)
+library(SummarizedExperiment)
+```
+
+# Two ways to launch it
+
+`qtlPCABrowser()` has two modes, selected by which argument you supply.
+
+## Gene-symbol mode (`tqe` only)
+
+Supply just a `tQTLExperiment` with gene symbols already added
+(`addGeneSymbols()`). The app shows a gene-symbol selector; on "Compute
+regression stats/PCA" it calls `qtlRegressionStats(tqe, symbol = ...)` for
+the chosen gene, then PCA's the result. Repeat calls for the same gene are
+memoised within the Shiny session.
+
+```{r genemode, eval=FALSE}
+exdir <- system.file("extdata", package = "tQTLExperiment")
+tqe <- tQTLExperiment(
+    plinkPrefix = file.path(exdir, "chr22-n100"),
+    phenoFile   = file.path(exdir, "mean-pheno-n100.bed"),
+    covFile     = file.path(exdir, "cov-n100-tqtl.tsv"),
+    genome      = "hg38"
+)
+tqe <- addGeneSymbols(tqe)
+qtlPCABrowser(tqe)
+```
+
+This mode is the right default when you don't yet know which genes are
+interesting: compute on demand, gene by gene.
+
+## Pre-computed mode (`res` supplied)
+
+If you already have a wide `qtlRegressionStats()` result -- for instance
+for every gene in a region, computed ahead of time and possibly in
+parallel -- pass it as `res`; the gene-symbol selector is skipped and the
+app opens directly on the combined PCA.
+
+```{r precomp, eval=FALSE}
+symbols <- na.omit(unique(mcols(rowRanges(tqe))[["gene_name"]]))
+res_list <- lapply(symbols, function(s)
+    tryCatch(qtlRegressionStats(tqe, symbol = s), error = function(e) NULL))
+res_all <- do.call(rbind, res_list)
+qtlPCABrowser(res_all, tqe = tqe)
+```
+
+`res` must contain `phenotype_id` and `variant_id` columns (the wide,
+`t_only = TRUE` shape `qtlRegressionStats()` returns by default).
+
+# What happens to the t-statistic columns
+
+Before PCA, `qtlPCABrowser()` runs `collapseFactorTstats()` on `res` (or on
+each gene's freshly computed result), using the `collapse_patterns`
+argument -- by default tuned for the MAGE dataset's `factor_batch_*` and
+`population*` dummy columns. This keeps a factor with many levels from
+dominating the PCA the way `qtlRegressionStats()` alone would, since it
+would otherwise contribute one raw t-statistic column per level. Pass your
+own `collapse_patterns` list if your covariates use different names -- see
+`?collapseFactorTstats`.
+
+```{r collapsedemo, eval=FALSE}
+qtlPCABrowser(
+    tqe,
+    collapse_patterns = list(
+        site = "^t\\.site",
+        sex  = "^t\\.sex"
+    )
+)
+```
+
+PCA itself is `stats::prcomp()` on the resulting t-statistic matrix,
+centered but not scaled (`center = TRUE, scale. = FALSE`), so columns with
+naturally larger t-statistics -- typically genotype -- dominate the leading
+PCs, which is usually the point.
+
+# Interpreting the scatter-plus-beeswarm view
+
+Hovering a point in the PCA scatter plot identifies a SNP-gene pair, whose
+genotype effect is then drawn in the beeswarm panel using the same data
+extraction as [`plotGenotypeEffect()`](../reference/plotGenotypeEffect.html):
+genotype (0/1/2 alternate alleles) on the x-axis, phenotype value on the
+y-axis. The "Color beeswarm by" selector reconstructs the original factor
+levels from the covariate dummy columns (e.g. `batch`, `population`) plus
+any remaining numeric covariates, so you can immediately check whether an
+outlying PCA point corresponds to a pair whose apparent effect is really
+driven by one covariate level rather than genotype.
+
+# Session info
+
+```{r sessioninfo}
+sessionInfo()
+```

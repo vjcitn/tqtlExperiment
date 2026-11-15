@@ -1,0 +1,183 @@
+---
+title: "Per-pair regression statistics with qtlRegressionStats"
+author: "Claude Sonnet + Vincent Carey"
+date: "`r Sys.Date()`"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_float: true
+vignette: >
+  %\VignetteIndexEntry{Per-pair regression statistics with qtlRegressionStats}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+options(digits = 3)
+```
+
+# Overview
+
+`qtlRegressionStats()` fits, for each requested SNP-gene pair, a linear
+model of phenotype on genotype plus all covariates stored in the
+`tQTLExperiment`'s `colData`:
+
+```
+phenotype ~ genotype + <covariates>
+```
+
+It exists alongside `tensorQTL`, not as a replacement for it: `tensorQTL` is
+the tool for mapping cis-QTLs genome-wide, while `qtlRegressionStats()` gives
+full `lm()` output (coefficients, standard errors, t-statistics for every
+covariate, not just genotype) for a targeted set of pairs, in-process in R.
+This is useful for follow-up on specific genes, for building the input to
+[`qtlPCABrowser()`](pcaBrowser.html), and any time you want the whole
+regression table rather than tensorQTL's genotype-only summary.
+
+Pairs can be processed in parallel across phenotypes (or, in gene mode,
+across variants) via `BiocParallel::bplapply()`.
+
+```{r loaddata, message=FALSE}
+library(tQTLExperiment)
+library(GenomicRanges)
+library(S4Vectors)
+```
+
+# Example data
+
+The small chr22 example dataset (20 genes, 100 samples) ships with the
+package and needs no external downloads.
+
+```{r construct}
+exdir <- system.file("extdata", package = "tQTLExperiment")
+tqe <- tQTLExperiment(
+    plinkPrefix = file.path(exdir, "chr22-n100"),
+    phenoFile   = file.path(exdir, "mean-pheno-n100.bed"),
+    covFile     = file.path(exdir, "cov-n100-tqtl.tsv"),
+    genome      = "hg38"
+)
+tqe
+colnames(colData(tqe))
+```
+
+The covariates here are a mix of a fixed effect (`sex`), a continuous
+covariate (`age`), and expression/genotype PCs -- no factor-expanded
+columns, so `qtlRegressionStats()`'s output has one column per covariate
+rather than one per factor level.
+
+# Two ways to specify pairs
+
+## Explicit pairs
+
+Supply a data frame with `phenotype_id` and `variant_id` columns naming
+exactly the pairs to fit.
+
+```{r pairs}
+pairs <- data.frame(
+    phenotype_id = rownames(tqe)[1],
+    variant_id   = mcols(tqtlVariantRanges(tqe))[["snp_id"]][1]
+)
+qtlRegressionStats(tqe, pairs)
+```
+
+## Gene symbol and cis window
+
+Alternatively, supply `symbol` and a `window` (bp) to fit every variant
+within that window of the gene's start. This requires a `gene_name` column
+in `rowRanges(tqe)`, added by `addGeneSymbols()`.
+
+```{r symcheck}
+if (requireNamespace("EnsDb.Hsapiens.v79", quietly = TRUE)) {
+    tqe <- addGeneSymbols(tqe)
+    head(mcols(rowRanges(tqe))[, c("phenotype_id", "gene_name")])
+}
+```
+
+```{r genemode, eval=requireNamespace("EnsDb.Hsapiens.v79", quietly = TRUE)}
+res_gene <- qtlRegressionStats(tqe, symbol = "TPTEP1", window = 1000000L)
+dim(res_gene)
+head(res_gene)
+```
+
+`pairs` and `symbol` are mutually exclusive -- supply exactly one.
+
+# Output shape: t_only and wideFormat
+
+Two arguments control the shape of the result:
+
+- `t_only`: `TRUE` (default) returns just the t-statistic
+  (`estimate / std.error`) per term; `FALSE` also returns the estimate,
+  standard error, raw t-statistic, and p-value.
+- `wideFormat`: `TRUE` (default) pivots to one row per pair, with one
+  (or two, if `t_only = FALSE`) columns per model term; `FALSE` returns
+  the long tidy form, one row per pair x term.
+
+```{r shapes, eval=requireNamespace("EnsDb.Hsapiens.v79", quietly = TRUE)}
+# long form, full statistics -- one row per pair x covariate
+long <- qtlRegressionStats(tqe, symbol = "TPTEP1", t_only = FALSE, wideFormat = FALSE)
+head(long)
+
+# wide form, t-statistics only (the input qtlPCABrowser() expects)
+head(qtlRegressionStats(tqe, symbol = "TPTEP1"))
+```
+
+The wide, `t_only = TRUE` form is exactly what
+[`qtlPCABrowser()`](pcaBrowser.html) and `collapseFactorTstats()` expect as
+input: one row per SNP-gene pair, one `<term>.t` column per covariate.
+
+# Collapsing factor-expanded columns
+
+When a covariate matrix includes a multi-level factor (e.g. `batch` or
+`population`), `model.matrix()` expands it into several dummy columns, so
+the wide `qtlRegressionStats()` output carries one `t.<var><level>` column
+per level. `collapseFactorTstats()` replaces each such group with a single
+root-mean-square summary column, which keeps a PCA on t-statistics from
+being dominated by however many levels a factor happens to have.
+
+```{r collapse, eval=requireNamespace("EnsDb.Hsapiens.v79", quietly = TRUE)}
+wide <- qtlRegressionStats(tqe, symbol = "TPTEP1")
+names(wide)
+# no factor-expanded columns in this toy covariate set, so this is a no-op
+head(collapseFactorTstats(wide))
+```
+
+On the MAGE chr17 dataset used in the main vignette, the covariate matrix
+includes `factor_batch_*` and `population*` dummy columns, and
+`collapseFactorTstats()` reduces each group to `t.batch` and
+`t.population`. See `?collapseFactorTstats` for the pattern arguments.
+
+# Parallelization
+
+`BPPARAM` is passed straight to `BiocParallel::bplapply()`. Pairs are
+grouped by phenotype: with multiple phenotypes, groups are distributed
+across workers; in gene-symbol mode (a single phenotype, many variants),
+the inner loop over variants is parallelized instead.
+
+```{r parallel, eval=FALSE}
+qtlRegressionStats(
+    tqe,
+    symbol  = "TPTEP1",
+    BPPARAM = BiocParallel::MulticoreParam(4)
+)
+```
+
+# Chromosome-naming caveat
+
+`rowRanges(tqe)` built from a `SummarizedExperiment` typically carries
+UCSC-style seqnames (`"chr17"`), while `tqtlVariantRanges(tqe)` reflects the
+PLINK `.bim` convention of bare chromosome numbers (`"17"`).
+`qtlRegressionStats()` normalizes both by stripping any leading `"chr"`
+before comparing when `symbol` is used to select the cis window. If you
+write code that intersects `rowRanges(tqe)` and `tqtlVariantRanges(tqe)`
+directly, apply the same normalization:
+
+```{r seqfix, eval=FALSE}
+sub("^chr", "", as.character(seqnames(gr)))
+```
+
+# Session info
+
+```{r sessioninfo}
+sessionInfo()
+```

@@ -35,7 +35,7 @@ rownames(t_mat) <- res_clean[["variant_id"]]
 
 # ---- PCA -------------------------------------------------------------------
 
-pca     <- prcomp(t_mat, center = TRUE, scale. = TRUE)
+pca     <- prcomp(t_mat, center = TRUE, scale. = FALSE)
 pct_var <- round(100 * pca$sdev^2 / sum(pca$sdev^2), 1)
 scores  <- as.data.frame(pca$x[, 1:2])
 scores$variant_id <- res_clean[["variant_id"]]
