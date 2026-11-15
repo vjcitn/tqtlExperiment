@@ -16,6 +16,9 @@ to hold all data needed for the tensorQTL eQTL mapping tool:}
 \item \strong{variantRanges}: \link[GenomicRanges:GRanges]{GenomicRanges::GRanges} for each variant, with
 metadata columns \code{snp_id}, \code{ref}, \code{alt}
 \item \strong{plinkPrefix}: path prefix for the PLINK file set
+\item \strong{tqtlResultsDir}: path to a directory of tensorQTL \code{cis_nominal}
+parquet output, bound by \code{\link[=readTQTL]{readTQTL()}} after a successful run, and
+queried lazily (without loading the whole table) via \code{\link[=tqtlResults]{tqtlResults()}}
 }
 }
 \details{
@@ -33,10 +36,15 @@ on Apple Silicon.
 
 \item{\code{plinkPrefix}}{A length-one character string giving the PLINK file
 prefix.}
+
+\item{\code{tqtlResultsDir}}{A length-one character string giving the directory
+of bound \code{cis_nominal} tensorQTL output, or \code{NA_character_} if none has
+been bound yet.}
 }}
 
 \seealso{
 \code{\link[=tQTLExperiment]{tQTLExperiment()}} for the constructor,
 \code{\link[=prepareTQTL]{prepareTQTL()}} to write input files and get the CLI command,
-\code{\link[=readTQTL]{readTQTL()}} to load results, \code{\link[=findTQTL]{findTQTL()}} to locate Python.
+\code{\link[=readTQTL]{readTQTL()}} to load results, \code{\link[=tqtlResults]{tqtlResults()}} to query bound results
+lazily, \code{\link[=findTQTL]{findTQTL()}} to locate Python.
 }

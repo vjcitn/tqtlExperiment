@@ -41,5 +41,7 @@ head(res$pairs)
 
 }
 \seealso{
-\code{\link[=prepareTQTL]{prepareTQTL()}} to write input files and obtain the CLI command.
+\code{\link[=prepareTQTL]{prepareTQTL()}} to write input files and obtain the CLI command,
+\code{\link[=tqtlResults]{tqtlResults()}} to query a bound \code{cis_nominal} directory lazily, by
+gene or variant, without reloading the whole table.
 }

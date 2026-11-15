@@ -138,7 +138,9 @@ prepareTQTL <- function(x, outDir,
 #'     \item{`output_files`}{(other modes) Paths to the raw output files.}
 #'   }
 #'
-#' @seealso [prepareTQTL()] to write input files and obtain the CLI command.
+#' @seealso [prepareTQTL()] to write input files and obtain the CLI command,
+#'   [tqtlResults()] to query a bound `cis_nominal` directory lazily, by
+#'   gene or variant, without reloading the whole table.
 #'
 #' @examples
 #' # Load pre-computed tensorQTL results from demo data
@@ -172,62 +174,12 @@ readTQTL <- function(outDir,
                  "install.packages('arrow')")
         df <- do.call(rbind, lapply(parquet_files, arrow::read_parquet))
 
-        # Parse GRanges coordinates from variant_id.
-        # Handles common formats:
-        #   "17:114101:G:A"   (chrom:pos:ref:alt, 4 colon-separated fields)
-        #   "22:16849573A-G"  (chrom:posRef-Alt,  2 fields, pos is numeric prefix)
-        #   "17_114101_G_A"   (underscore-separated)
-        vid   <- df[["variant_id"]]
-        chrom <- pos <- NULL
-
-        # try colon-separated
-        parts <- strsplit(vid, ":", fixed = TRUE)
-        if (all(lengths(parts) >= 2L)) {
-            chrom <- vapply(parts, `[[`, character(1), 1L)
-            pos2  <- vapply(parts, `[[`, character(1), 2L)
-            pos   <- suppressWarnings(as.integer(pos2))
-            if (anyNA(pos))   # pos2 may be "16849573A-G" — take numeric prefix
-                pos <- suppressWarnings(
-                    as.integer(sub("^([0-9]+).*", "\\1", pos2)))
+        result <- .variant_id_to_gr(df, x)
+        if (!is.null(x)) {
+            tqtlResultsDir(x) <- outDir
+            return(list(pairs = result, tqe = x))
         }
-
-        # try underscore-separated if colon parse failed
-        if (is.null(pos) || anyNA(pos)) {
-            parts2 <- strsplit(vid, "_", fixed = TRUE)
-            if (all(lengths(parts2) >= 2L)) {
-                chrom <- vapply(parts2, `[[`, character(1), 1L)
-                pos   <- suppressWarnings(
-                    as.integer(vapply(parts2, `[[`, character(1), 2L)))
-            }
-        }
-
-        if (!is.null(pos) && !anyNA(pos)) {
-            gr <- GRanges(
-                seqnames = chrom,
-                ranges   = IRanges::IRanges(start = pos, width = 1L)
-            )
-            S4Vectors::mcols(gr) <- S4Vectors::DataFrame(df)
-
-            if (!is.null(x)) {
-                rr <- SummarizedExperiment::rowRanges(x)
-                # propagate genome build
-                g <- unique(GenomeInfoDb::genome(rr))
-                if (length(g) == 1L && !is.na(g))
-                    GenomeInfoDb::genome(gr) <- g
-                # propagate gene_name if present
-                if ("gene_name" %in% names(S4Vectors::mcols(rr))) {
-                    idx <- match(S4Vectors::mcols(gr)[["phenotype_id"]],
-                                 names(rr))
-                    S4Vectors::mcols(gr)[["gene_name"]] <-
-                        S4Vectors::mcols(rr)[["gene_name"]][idx]
-                }
-            }
-            return(list(pairs = gr))
-        }
-
-        message("Could not parse chrom/pos from variant_id (e.g. '",
-                vid[1], "'); returning DataFrame")
-        return(list(pairs = S4Vectors::DataFrame(df)))
+        return(list(pairs = result))
     }
 
     if (mode == "cis") {
@@ -250,6 +202,122 @@ readTQTL <- function(outDir,
     }
 
     list(output_files = outfiles)
+}
+
+# Parse GRanges coordinates from variant_id and, if `x` is supplied,
+# propagate genome build and gene_name from rowRanges(x). Handles common
+# formats:
+#   "17:114101:G:A"   (chrom:pos:ref:alt, 4 colon-separated fields)
+#   "22:16849573A-G"  (chrom:posRef-Alt,  2 fields, pos is numeric prefix)
+#   "17_114101_G_A"   (underscore-separated)
+# Shared by readTQTL() (eager, whole-table) and tqtlResults() (lazy,
+# filtered) so both produce identical GRanges.
+.variant_id_to_gr <- function(df, x = NULL) {
+    vid   <- df[["variant_id"]]
+    chrom <- pos <- NULL
+
+    parts <- strsplit(vid, ":", fixed = TRUE)
+    if (all(lengths(parts) >= 2L)) {
+        chrom <- vapply(parts, `[[`, character(1), 1L)
+        pos2  <- vapply(parts, `[[`, character(1), 2L)
+        pos   <- suppressWarnings(as.integer(pos2))
+        if (anyNA(pos))   # pos2 may be "16849573A-G" — take numeric prefix
+            pos <- suppressWarnings(
+                as.integer(sub("^([0-9]+).*", "\\1", pos2)))
+    }
+
+    if (is.null(pos) || anyNA(pos)) {
+        parts2 <- strsplit(vid, "_", fixed = TRUE)
+        if (all(lengths(parts2) >= 2L)) {
+            chrom <- vapply(parts2, `[[`, character(1), 1L)
+            pos   <- suppressWarnings(
+                as.integer(vapply(parts2, `[[`, character(1), 2L)))
+        }
+    }
+
+    if (is.null(pos) || anyNA(pos)) {
+        message("Could not parse chrom/pos from variant_id (e.g. '",
+                vid[1], "'); returning DataFrame")
+        return(S4Vectors::DataFrame(df))
+    }
+
+    gr <- GRanges(
+        seqnames = chrom,
+        ranges   = IRanges::IRanges(start = pos, width = 1L)
+    )
+    S4Vectors::mcols(gr) <- S4Vectors::DataFrame(df)
+
+    if (!is.null(x)) {
+        rr <- SummarizedExperiment::rowRanges(x)
+        g <- unique(GenomeInfoDb::genome(rr))
+        if (length(g) == 1L && !is.na(g))
+            GenomeInfoDb::genome(gr) <- g
+        if ("gene_name" %in% names(S4Vectors::mcols(rr))) {
+            idx <- match(S4Vectors::mcols(gr)[["phenotype_id"]], names(rr))
+            S4Vectors::mcols(gr)[["gene_name"]] <-
+                S4Vectors::mcols(rr)[["gene_name"]][idx]
+        }
+    }
+    gr
+}
+
+#' Query bound tensorQTL cis_nominal results lazily
+#'
+#' Queries a `cis_nominal` output directory bound to a [tQTLExperiment] via
+#' [readTQTL()] or [`tqtlResultsDir<-`], without loading the whole
+#' genome-wide table into memory. Filtering is pushed down to the parquet
+#' files by [arrow::open_dataset()], so only the matching rows (e.g. one
+#' gene's pairs) are ever materialized in R.
+#'
+#' @param x A [tQTLExperiment] with `tqtlResultsDir(x)` set.
+#' @param phenotype_id Optional character vector of phenotype/gene IDs to
+#'   filter to. If `NULL` (default), no phenotype filter is applied.
+#' @param variant_id Optional character vector of variant IDs to filter to.
+#'   If `NULL` (default), no variant filter is applied.
+#' @param as One of `"GRanges"` (default) or `"data.frame"`.
+#'
+#' @return A [GenomicRanges::GRanges] (or data frame) of the matching
+#'   `cis_nominal` rows.
+#'
+#' @seealso [readTQTL()] to bind a results directory after a run,
+#'   [`tqtlResultsDir<-`] to bind one directly.
+#'
+#' @examples
+#' \dontrun{
+#' tqe <- readTQTL(outdir, mode = "cis_nominal", x = tqe)$tqe
+#' tqtlResults(tqe, phenotype_id = "ENSG00000187624.9")
+#' }
+#'
+#' @export
+tqtlResults <- function(x, phenotype_id = NULL, variant_id = NULL,
+                        as = c("GRanges", "data.frame")) {
+    as <- match.arg(as)
+    dir <- tqtlResultsDir(x)
+    if (is.na(dir))
+        stop("tqtlResultsDir(x) is not set -- bind a cis_nominal output ",
+             "directory first, e.g. via readTQTL(outDir, ",
+             "mode = 'cis_nominal', x = x), or `tqtlResultsDir(x) <- outDir`")
+    if (!requireNamespace("arrow", quietly = TRUE))
+        stop("Package 'arrow' needed to read parquet output: ",
+             "install.packages('arrow')")
+    if (!requireNamespace("dplyr", quietly = TRUE))
+        stop("Package 'dplyr' needed for lazy filtering: ",
+             "install.packages('dplyr')")
+
+    parquet_files <- list.files(dir, pattern = "tqtl_out", full.names = TRUE)
+    parquet_files <- parquet_files[grepl("parquet", parquet_files)]
+    if (length(parquet_files) == 0L)
+        stop("No .parquet files found in '", dir, "'")
+
+    ds <- arrow::open_dataset(parquet_files)
+    if (!is.null(phenotype_id))
+        ds <- dplyr::filter(ds, .data[["phenotype_id"]] %in% !!phenotype_id)
+    if (!is.null(variant_id))
+        ds <- dplyr::filter(ds, .data[["variant_id"]] %in% !!variant_id)
+    df <- as.data.frame(dplyr::collect(ds))
+
+    if (as == "data.frame") return(df)
+    .variant_id_to_gr(df, x)
 }
 
 # ---- internal file writers ----------------------------------------------

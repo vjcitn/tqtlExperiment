@@ -21,6 +21,9 @@ NULL
 #' - **variantRanges**: [GenomicRanges::GRanges] for each variant, with
 #'   metadata columns `snp_id`, `ref`, `alt`
 #' - **plinkPrefix**: path prefix for the PLINK file set
+#' - **tqtlResultsDir**: path to a directory of tensorQTL `cis_nominal`
+#'   parquet output, bound by [readTQTL()] after a successful run, and
+#'   queried lazily (without loading the whole table) via [tqtlResults()]
 #'
 #' tensorQTL is invoked via its CLI (`python -m tensorqtl`) and supports
 #' GPU acceleration through CUDA or Apple MPS (Metal Performance Shaders)
@@ -31,19 +34,25 @@ NULL
 #'   `ncol(geno)`.
 #' @slot plinkPrefix A length-one character string giving the PLINK file
 #'   prefix.
+#' @slot tqtlResultsDir A length-one character string giving the directory
+#'   of bound `cis_nominal` tensorQTL output, or `NA_character_` if none has
+#'   been bound yet.
 #'
 #' @seealso [tQTLExperiment()] for the constructor,
 #'   [prepareTQTL()] to write input files and get the CLI command,
-#'   [readTQTL()] to load results, [findTQTL()] to locate Python.
+#'   [readTQTL()] to load results, [tqtlResults()] to query bound results
+#'   lazily, [findTQTL()] to locate Python.
 #'
 #' @exportClass tQTLExperiment
 setClass("tQTLExperiment",
     contains = "RangedSummarizedExperiment",
     representation(
-        geno          = "ANY",
-        variantRanges = "GRanges",
-        plinkPrefix   = "character"
-    )
+        geno           = "ANY",
+        variantRanges  = "GRanges",
+        plinkPrefix    = "character",
+        tqtlResultsDir = "character"
+    ),
+    prototype(tqtlResultsDir = NA_character_)
 )
 
 setValidity("tQTLExperiment", function(object) {
@@ -66,6 +75,12 @@ setValidity("tQTLExperiment", function(object) {
 
     if (length(object@plinkPrefix) != 1L || is.na(object@plinkPrefix))
         msg <- c(msg, "'plinkPrefix' must be a single non-NA character string")
+
+    if (length(object@tqtlResultsDir) != 1L)
+        msg <- c(msg, "'tqtlResultsDir' must be a single character string (or NA)")
+    else if (!is.na(object@tqtlResultsDir) && !dir.exists(object@tqtlResultsDir))
+        msg <- c(msg, sprintf("'tqtlResultsDir' does not exist: %s",
+                               object@tqtlResultsDir))
 
     if (length(msg)) msg else TRUE
 })

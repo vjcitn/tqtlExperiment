@@ -78,3 +78,37 @@ setMethod("tqtlPlinkPrefix", "tQTLExperiment", function(x) x@plinkPrefix)
 setReplaceMethod("tqtlPlinkPrefix", "tQTLExperiment", function(x, value) {
     x@plinkPrefix <- value; validObject(x); x
 })
+
+#' Access the bound tensorQTL cis_nominal results directory
+#'
+#' Stores the path to a directory of tensorQTL `cis_nominal` parquet
+#' output, without loading any of it into memory -- the actual data stays
+#' on disk and is queried lazily via [tqtlResults()]. Set automatically by
+#' [readTQTL()] when `mode = "cis_nominal"` and `x` is supplied, or set
+#' directly to bind a directory from a run done outside R.
+#'
+#' @param x A [tQTLExperiment].
+#' @param value A length-one character string giving the directory path.
+#' @return The `tqtlResultsDir` slot (a path, or `NA_character_` if unset).
+#' @seealso [tqtlResults()] to query the bound directory lazily.
+#' @examples
+#' exdir <- system.file("extdata", package = "tQTLExperiment")
+#' tqe <- tQTLExperiment(
+#'     plinkPrefix = file.path(exdir, "chr22-n100"),
+#'     phenoFile   = file.path(exdir, "mean-pheno-n100.bed")
+#' )
+#' tqtlResultsDir(tqe)  # NA_character_ -- nothing bound yet
+#' @export
+setGeneric("tqtlResultsDir", function(x) standardGeneric("tqtlResultsDir"))
+
+#' @rdname tqtlResultsDir
+#' @export
+setGeneric("tqtlResultsDir<-", function(x, value) standardGeneric("tqtlResultsDir<-"))
+
+#' @rdname tqtlResultsDir
+setMethod("tqtlResultsDir", "tQTLExperiment", function(x) x@tqtlResultsDir)
+
+#' @rdname tqtlResultsDir
+setReplaceMethod("tqtlResultsDir", "tQTLExperiment", function(x, value) {
+    x@tqtlResultsDir <- value; validObject(x); x
+})
