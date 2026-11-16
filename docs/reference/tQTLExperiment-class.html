@@ -9,6 +9,9 @@ geno: lazy BEDMatrix::BEDMatrix over the PLINK .bed file
 variantRanges: GenomicRanges::GRanges for each variant, with
 metadata columns snp_id, ref, alt
 plinkPrefix: path prefix for the PLINK file set
+tqtlResultsDir: path to a directory of tensorQTL cis_nominal
+parquet output, bound by readTQTL() after a successful run, and
+queried lazily (without loading the whole table) via tqtlResults()
 
 "><meta property="og:description" content="
 
@@ -20,6 +23,9 @@ geno: lazy BEDMatrix::BEDMatrix over the PLINK .bed file
 variantRanges: GenomicRanges::GRanges for each variant, with
 metadata columns snp_id, ref, alt
 plinkPrefix: path prefix for the PLINK file set
+tqtlResultsDir: path to a directory of tensorQTL cis_nominal
+parquet output, bound by readTQTL() after a successful run, and
+queried lazily (without loading the whole table) via tqtlResults()
 
 "></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -71,6 +77,9 @@ plinkPrefix: path prefix for the PLINK file set
 <li><p><strong>variantRanges</strong>: <a href="https://rdrr.io/pkg/GenomicRanges/man/GRanges-class.html" class="external-link">GenomicRanges::GRanges</a> for each variant, with
 metadata columns <code>snp_id</code>, <code>ref</code>, <code>alt</code></p></li>
 <li><p><strong>plinkPrefix</strong>: path prefix for the PLINK file set</p></li>
+<li><p><strong>tqtlResultsDir</strong>: path to a directory of tensorQTL <code>cis_nominal</code>
+parquet output, bound by <code><a href="readTQTL.html">readTQTL()</a></code> after a successful run, and
+queried lazily (without loading the whole table) via <code><a href="tqtlResults.html">tqtlResults()</a></code></p></li>
 </ul></div>
 
 
@@ -98,12 +107,19 @@ on Apple Silicon.</p>
 prefix.</p></dd>
 
 
+<dt><code>tqtlResultsDir</code></dt>
+<dd><p>A length-one character string giving the directory
+of bound <code>cis_nominal</code> tensorQTL output, or <code>NA_character_</code> if none has
+been bound yet.</p></dd>
+
+
 </dl></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="tQTLExperiment.html">tQTLExperiment()</a></code> for the constructor,
 <code><a href="prepareTQTL.html">prepareTQTL()</a></code> to write input files and get the CLI command,
-<code><a href="readTQTL.html">readTQTL()</a></code> to load results, <code><a href="findTQTL.html">findTQTL()</a></code> to locate Python.</p></div>
+<code><a href="readTQTL.html">readTQTL()</a></code> to load results, <code><a href="tqtlResults.html">tqtlResults()</a></code> to query bound results
+lazily, <code><a href="findTQTL.html">findTQTL()</a></code> to locate Python.</p></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

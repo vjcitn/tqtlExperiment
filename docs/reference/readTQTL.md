@@ -53,7 +53,10 @@ A named list of
 ## See also
 
 [`prepareTQTL()`](https://github.com/vjcitn/tQTLExperiment/reference/prepareTQTL.md)
-to write input files and obtain the CLI command.
+to write input files and obtain the CLI command,
+[`tqtlResults()`](https://github.com/vjcitn/tQTLExperiment/reference/tqtlResults.md)
+to query a bound `cis_nominal` directory lazily, by gene or variant,
+without reloading the whole table.
 
 ## Examples
 

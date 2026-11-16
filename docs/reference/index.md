@@ -89,6 +89,13 @@
   [`` `tqtlPlinkPrefix<-`() ``](https://github.com/vjcitn/tQTLExperiment/reference/tqtlPlinkPrefix.md)
   : Access the PLINK file prefix
 
+- [`tqtlResults()`](https://github.com/vjcitn/tQTLExperiment/reference/tqtlResults.md)
+  : Query bound tensorQTL cis_nominal results lazily
+
+- [`tqtlResultsDir()`](https://github.com/vjcitn/tQTLExperiment/reference/tqtlResultsDir.md)
+  [`` `tqtlResultsDir<-`() ``](https://github.com/vjcitn/tQTLExperiment/reference/tqtlResultsDir.md)
+  : Access the bound tensorQTL cis_nominal results directory
+
 - [`tqtlVariantRanges()`](https://github.com/vjcitn/tQTLExperiment/reference/tqtlVariantRanges.md)
   [`` `tqtlVariantRanges<-`() ``](https://github.com/vjcitn/tQTLExperiment/reference/tqtlVariantRanges.md)
   : Access variant genomic ranges

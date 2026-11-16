@@ -68,6 +68,6 @@ tqe
 #> rowRanges: GRanges with 20 features
 #> colData( 11 ) covariates: int, sex, age, expr_pc1 ... 
 #> geno: 100 samples x 69638 variants [BEDMatrix - lazy]
-#> plinkPrefix: /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpOhRh54/temp_libpath175734e41dcb3/tQTLExperiment/extdata/chr22-n100 
+#> plinkPrefix: /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpcbUgAS/temp_libpath2147cb89ee3/tQTLExperiment/extdata/chr22-n100 
 #> use prepareTQTL() to write inputs and get CLI command
 ```

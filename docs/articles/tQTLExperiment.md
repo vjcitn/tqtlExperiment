@@ -2,7 +2,7 @@
 
 ## Overview
 
-`tQTLExperiment` wraps the
+`tQTLExperiment` wraps data components of use with the
 [tensorQTL](https://github.com/broadinstitute/tensorqtl) GPU-accelerated
 eQTL mapping tool in a
 [SummarizedExperiment](https://bioconductor.org/packages/SummarizedExperiment)-style
@@ -17,8 +17,7 @@ keeps R and Python in separate environments:
     — reads the output files back into R as
     [GRanges](https://bioconductor.org/packages/GenomicRanges).
 
-This avoids all R/Python environment conflicts (conda PATH issues,
-`rpy2` segfaults, duplicate OpenMP runtimes).
+This avoids all R/Python environment conflicts.
 
 Genotype data are represented **lazily** via
 [BEDMatrix](https://CRAN.R-project.org/package=BEDMatrix) — the PLINK
@@ -180,12 +179,17 @@ KMP_DUPLICATE_LIB_OK=TRUE <paste command>
 ### readTQTL
 
 Once tensorQTL finishes, load results back into R. Passing `x = tqe17`
-propagates the genome build and gene symbols automatically.
+propagates the genome build and gene symbols automatically, and – for
+`mode = "cis_nominal"` – also binds the output directory onto a copy of
+`tqe17` (returned as `res$tqe`), so it can be queried later without
+reloading the whole table (see [“Lazy querying of bound
+results”](#lazy-querying-of-bound-results) below).
 
 ``` r
 
 res <- readTQTL(outdir, mode = "cis_nominal", x = tqe17)
 res$pairs
+tqe17 <- res$tqe   # now carries a bound results directory
 ```
 
 ## Exploring results
@@ -234,7 +238,7 @@ tqe_ex
 #> rowRanges: GRanges with 20 features
 #> colData( 0 ) covariates:   
 #> geno: 100 samples x 69638 variants [BEDMatrix - lazy]
-#> plinkPrefix: /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpOhRh54/temp_libpath175734e41dcb3/tQTLExperiment/extdata/chr22-n100 
+#> plinkPrefix: /private/var/folders/yw/gfhgh7k565v9w83x_k764wbc0000gp/T/RtmpcbUgAS/temp_libpath2147cb89ee3/tQTLExperiment/extdata/chr22-n100 
 #> use prepareTQTL() to write inputs and get CLI command
 ```
 
@@ -355,6 +359,78 @@ plotGenotypeEffect(tqe, "17:410391:T:C", "ENSG00000187624.9")
 ```
 
 ![](tQTLExperiment_files/figure-html/shviz-1.png)
+
+## Lazy querying of bound results
+
+A real `cis_nominal` run can produce a very large pair-level table (sum
+over genes of each gene’s cis-SNPs), too large to want sitting fully
+loaded in memory just for being attached to a `tQTLExperiment`. Instead
+of storing the data itself, `readTQTL(..., x = tqe)` binds only the
+*directory* onto a copy of `tqe` – the same lazy-access pattern already
+used for genotypes (`geno`/`plinkPrefix`, never loaded until
+subscripted).
+
+``` r
+
+res_bound <- readTQTL(demodir, mode = "cis_nominal", x = tqe)
+tqe <- res_bound$tqe
+tqtlResultsDir(tqe)
+#> [1] "/Users/vincentcarey/Library/Caches/org.R-project.R/R/BiocFileCache/tqtlExperiment_demodir"
+```
+
+[`tqtlResults()`](https://github.com/vjcitn/tQTLExperiment/reference/tqtlResults.md)
+then queries that directory on demand. Filtering by `phenotype_id` or
+`variant_id` is pushed down to the parquet files via `arrow`, so only
+the matching rows are ever read into R – the genome-wide table is never
+materialized:
+
+``` r
+
+one_gene <- res_bound$pairs$phenotype_id[1]
+tqtlResults(tqe, phenotype_id = one_gene)
+#> GRanges object with 4011 ranges and 10 metadata columns:
+#>          seqnames    ranges strand |      phenotype_id      variant_id
+#>             <Rle> <IRanges>  <Rle> |       <character>     <character>
+#>      [1]       17    114101      * | ENSG00000280279.1   17:114101:G:A
+#>      [2]       17    114226      * | ENSG00000280279.1   17:114226:A:G
+#>      [3]       17    116159      * | ENSG00000280279.1   17:116159:G:C
+#>      [4]       17    116270      * | ENSG00000280279.1   17:116270:G:C
+#>      [5]       17    116354      * | ENSG00000280279.1   17:116354:C:T
+#>      ...      ...       ...    ... .               ...             ...
+#>   [4007]       17   1074189      * | ENSG00000280279.1  17:1074189:T:C
+#>   [4008]       17   1074525      * | ENSG00000280279.1  17:1074525:T:C
+#>   [4009]       17   1075413      * | ENSG00000280279.1  17:1075413:T:C
+#>   [4010]       17   1075589      * | ENSG00000280279.1 17:1075589:G:GC
+#>   [4011]       17   1076082      * | ENSG00000280279.1  17:1076082:G:C
+#>          start_distance end_distance        af ma_samples  ma_count
+#>               <integer>    <integer> <numeric>  <integer> <integer>
+#>      [1]          37236        37235  0.450068        510       658
+#>      [2]          37361        37360  0.197674        247       289
+#>      [3]          39294        39293  0.450752        515       659
+#>      [4]          39405        39404  0.264706        326       387
+#>      [5]          39489        39488  0.486320        515       711
+#>      ...            ...          ...       ...        ...       ...
+#>   [4007]         997324       997323 0.0595075         81        87
+#>   [4008]         997660       997659 0.5253078        508       694
+#>   [4009]         998548       998547 0.5896033        455       600
+#>   [4010]         998724       998723 0.5287278        507       689
+#>   [4011]         999217       999216 0.2537620        315       371
+#>          pval_nominal       slope  slope_se
+#>             <numeric>   <numeric> <numeric>
+#>      [1]     0.857064 -0.00633339 0.0351502
+#>      [2]     0.441229  0.03399045 0.0441110
+#>      [3]     0.883984 -0.00517267 0.0354354
+#>      [4]     0.329784  0.03938431 0.0403842
+#>      [5]     0.805759 -0.00807438 0.0328232
+#>      ...          ...         ...       ...
+#>   [4007]     0.874551  -0.0111859 0.0708239
+#>   [4008]     0.312846  -0.0350997 0.0347519
+#>   [4009]     0.217155  -0.0435864 0.0352851
+#>   [4010]     0.130452  -0.0541001 0.0357300
+#>   [4011]     0.180355  -0.0566188 0.0422205
+#>   -------
+#>   seqinfo: 1 sequence from hg38 genome; no seqlengths
+```
 
 ## Session info
 
